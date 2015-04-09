@@ -1,9 +1,12 @@
-package ms
+package mediasort
 
 //Config is a sorter configuration
 type Config struct {
-	Target   string
+	Targets  []string
 	TVDir    string
 	MovieDir string
 	Exts     string
+	Depth    int
+	DryRun   bool
+	Watch    bool
 }
