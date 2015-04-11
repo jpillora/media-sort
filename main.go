@@ -82,15 +82,8 @@ func main() {
 		flag.Usage()
 	}
 
-	//get directory
+	//args are target dirs and files
 	c.Targets = flag.Args()
-	if len(c.Targets) == 0 {
-		cwd, err := os.Getwd()
-		if err != nil {
-			log.Fatal(err)
-		}
-		c.Targets = []string{cwd}
-	}
 
 	//ready!
 	s, err := mediasort.New(c)

@@ -139,7 +139,7 @@ func (f *fileSorter) run() error {
 	}
 
 	//check already exists
-	if _, err := os.Stat(dest); !os.IsExist(err) {
+	if _, err := os.Stat(dest); os.IsExist(err) {
 		return fmt.Errorf("File already exists '%s'", dest)
 	}
 
