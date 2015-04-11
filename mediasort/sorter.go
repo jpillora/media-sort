@@ -3,6 +3,7 @@ package mediasort
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/user"
 	"path"
@@ -13,14 +14,18 @@ import (
 
 //Sorter is a media sorter
 type Sorter struct {
-	c                       *Config
+	c                       Config
 	exts                    map[string]bool
 	files                   map[string]*fileSorter //abs-path -> file
 	Checked, Matched, Moved int
 }
 
 //NewSorter creates a new Sorter
-func New(c *Config) (*Sorter, error) {
+func New(c Config) (*Sorter, error) {
+
+	if len(c.Targets) == 0 {
+		return nil, fmt.Errorf("Please provide at least one file or directory")
+	}
 
 	u, err := user.Current()
 	if err != nil {
@@ -45,7 +50,7 @@ func New(c *Config) (*Sorter, error) {
 		files: map[string]*fileSorter{},
 	}
 
-	//convert targets into file sorter objects
+	//convert all targets into file sorter objects
 	for _, path := range c.Targets {
 		info, err := os.Stat(path)
 		if err != nil {
@@ -62,7 +67,7 @@ func New(c *Config) (*Sorter, error) {
 
 func (s *Sorter) addFile(path string, info os.FileInfo, depth int) error {
 
-	//only go 1 level deep
+	//limit recursion depth
 	if depth > s.c.Depth {
 		return nil
 	}
@@ -91,6 +96,7 @@ func (s *Sorter) addFile(path string, info os.FileInfo, depth int) error {
 		}
 		for _, info := range infos {
 			p := filepath.Join(path, info.Name())
+			//recurse
 			err := s.addFile(p, info, depth+1)
 			if err != nil {
 				return err
@@ -102,7 +108,7 @@ func (s *Sorter) addFile(path string, info os.FileInfo, depth int) error {
 	return nil
 }
 
-func (s *Sorter) Run() []error {
+func (s *Sorter) sortFiles() []error {
 	var errors []error
 	//parallel sort all files
 	wg := &sync.WaitGroup{}
@@ -123,4 +129,23 @@ func (s *Sorter) Run() []error {
 	}
 
 	return errors
+}
+
+func (s *Sorter) Run() []error {
+
+	if s.c.DryRun {
+		log.Println("[Dryrun Mode]")
+	}
+
+	//just run once
+	if !s.c.Watch {
+		return s.sortFiles()
+	}
+
+	//run watcher
+	// for {
+	// 	s.sortFiles()
+	// }
+
+	return []error{fmt.Errorf("Watch not implemented")}
 }

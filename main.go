@@ -6,15 +6,17 @@ import (
 	"log"
 	"os"
 
-	"github.com/jpillora/mediasort/mediasort"
+	"github.com/jpillora/media-sort/mediasort"
 )
 
 var VERSION string = "0.0.0" //set via ldflags
 
-var help = `
-	Usage: mediasort [options] [file/directory]
+var defaultExtensions = "mp4,avi,mkv"
 
-	MediaSort performs a simple categorization on the provided file or directory.
+var help = `
+	Usage: media-sort [options] [file/directory] [file/directory]...
+
+	media-sort categorizes the provided files and directories by moving them into to a structured directory tree, using the Open Movie Database.
 
 	Movies are moved to:
 		<movie-dir>/<title> (<year>).ext
@@ -24,21 +26,21 @@ var help = `
 	Version: ` + VERSION + `
 
 	Options:
-	--movie-dir -m, The destination movie directory (defaults to $HOME/movies).
-	--tv-dir -t,    The destination TV directory (defaults to $HOME/tv).
-	--ext,          Extensions considered (defaults to "mp4,avi,mkv")
-	--dryrun,       Runs in read-only mode
-	--version -v,   Display version.
-	--help -h,      This help text.
+	--movie-dir -m  The destination movie directory (defaults to $HOME/movies).
+	--tv-dir -t     The destination TV directory (defaults to $HOME/tv).
+	--ext -e        Extensions considered (defaults to "` + defaultExtensions + `").
+	--dryrun -d     Runs in read-only mode.
+	--depth         Directory depth to search for files.
+	--version -v    Display version.
+	--help -h       This help text.
 
 	Read more:
-	  https://github.com/jpillora/mediasort
+	  https://github.com/jpillora/media-sort
 `
 
 var todo = `
 	--config-file, A JSON file describing these options.
-	--watch, Watches the provided directory for changes.
-	and sorts new files as they arrive.
+	--watch, Watches each of the provided directory for changes and sorts new files and directories as they arrive.
 `
 
 func main() {
@@ -46,14 +48,16 @@ func main() {
 	// cpath := flag.String(&c.Config, "config-file", "", "")
 
 	//fill sorter config
-	c := &mediasort.Config{}
+	c := mediasort.Config{}
 	flag.StringVar(&c.MovieDir, "movie-dir", "", "")
 	flag.StringVar(&c.MovieDir, "m", "", "")
 	flag.StringVar(&c.TVDir, "tv-dir", "", "")
 	flag.StringVar(&c.TVDir, "t", "", "")
-	flag.StringVar(&c.Exts, "ext", "mp4,avi,mkv", "")
+	flag.StringVar(&c.Exts, "ext", defaultExtensions, "")
+	flag.StringVar(&c.Exts, "e", defaultExtensions, "")
 	flag.IntVar(&c.Depth, "depth", 1, "")
 	flag.BoolVar(&c.DryRun, "dryrun", false, "")
+	flag.BoolVar(&c.DryRun, "d", false, "")
 	flag.BoolVar(&c.Watch, "watch", false, "")
 
 	//meta cli

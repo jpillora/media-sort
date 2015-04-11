@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/jpillora/mediasort/search"
+	"github.com/jpillora/media-sort/search"
 )
 
 type fileSorter struct {
@@ -84,6 +84,7 @@ func (f *fileSorter) run() error {
 		f.episode = m[6]
 	}
 
+	//extract movie year
 	if f.mtype == "" {
 		m = year.FindStringSubmatch(f.query)
 		if len(m) > 0 {
@@ -93,6 +94,7 @@ func (f *fileSorter) run() error {
 		}
 	}
 
+	//if the above fails, extract "Part 1/2/3..."
 	if f.mtype == "" {
 		m = partnum.FindStringSubmatch(f.query)
 		if len(m) > 0 {
@@ -128,10 +130,23 @@ func (f *fileSorter) run() error {
 		dest = filepath.Join(f.s.c.MovieDir, filename)
 	}
 
-	log.Printf("Dryrun Moving\n  %s\n  %s", f.path, dest)
-
-	//found!
+	//DEBUG
 	// log.Printf("SUCCESS = D%d #%d\n  %s\n  %s", r.Distance, len(f.query), f.query, r.Title)
+	log.Printf("Moving: %s -> %s", f.path, dest)
 
+	if f.s.c.DryRun {
+		return nil
+	}
+
+	//mkdir -p
+	err = os.MkdirAll(filepath.Dir(dest), 0755)
+	if err != nil {
+		return err //failed to mkdir
+	}
+
+	err = os.Rename(f.path, dest)
+	if err != nil {
+		return err //failed to move
+	}
 	return nil
 }
