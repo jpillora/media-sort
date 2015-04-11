@@ -132,10 +132,15 @@ func (f *fileSorter) run() error {
 
 	//DEBUG
 	// log.Printf("SUCCESS = D%d #%d\n  %s\n  %s", r.Distance, len(f.query), f.query, r.Title)
-	log.Printf("Moving: %s -> %s", f.path, dest)
+	log.Printf("Moving\n  '%s'\n  └─> '%s'", f.path, dest)
 
 	if f.s.c.DryRun {
 		return nil
+	}
+
+	//check already exists
+	if _, err := os.Stat(dest); !os.IsExist(err) {
+		return fmt.Errorf("File already exists '%s'", dest)
 	}
 
 	//mkdir -p
@@ -144,6 +149,7 @@ func (f *fileSorter) run() error {
 		return err //failed to mkdir
 	}
 
+	//mv
 	err = os.Rename(f.path, dest)
 	if err != nil {
 		return err //failed to move

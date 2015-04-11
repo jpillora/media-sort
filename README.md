@@ -7,7 +7,7 @@ A command-line tool which categorizes provided files and directories by moving t
 
 **Binaries**
 
-See [the latest release](https://github.com/jpillora/media-sort/releases/latest) and one-line downloader `curl i.jpillora.com/media-sort | sh`
+See [the latest release](https://github.com/jpillora/media-sort/releases/latest) and one-line downloader `curl i.jpillora.com/media-sort | bash`
 
 **Source**
 
