@@ -1,7 +1,7 @@
 
 # media-sort
 
-A command-line tool which categorizes provided files and directories by moving them into to a structured directory tree, using the [Open Movie Database](https://www.themoviedb.org/).
+A command-line tool which categorizes provided files and directories by moving them into to a structured directory tree, using the [Open Movie Database API](http://www.omdbapi.com/).
 
 ### Install
 
