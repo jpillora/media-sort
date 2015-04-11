@@ -5,11 +5,12 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/user"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 //Sorter is a media sorter
@@ -27,16 +28,16 @@ func New(c Config) (*Sorter, error) {
 		return nil, fmt.Errorf("Please provide at least one file or directory")
 	}
 
-	u, err := user.Current()
+	home, err := homedir.Dir()
 	if err != nil {
 		return nil, err
 	}
 
 	if c.MovieDir == "" {
-		c.MovieDir = path.Join(u.HomeDir, "movies")
+		c.MovieDir = path.Join(home, "movies")
 	}
 	if c.TVDir == "" {
-		c.TVDir = path.Join(u.HomeDir, "tv")
+		c.TVDir = path.Join(home, "tv")
 	}
 
 	exts := map[string]bool{}
