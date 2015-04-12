@@ -28,9 +28,14 @@ type fileSorter struct {
 	year            string
 }
 
+var sample = regexp.MustCompile(`\bsample\b`)
+
 func newFileSorter(s *Sorter, path string, info os.FileInfo) (*fileSorter, error) {
 	//attempt to rule out file
 	if !info.Mode().IsRegular() {
+		return nil, nil
+	}
+	if sample.MatchString(strings.ToLower(path)) {
 		return nil, nil
 	}
 
