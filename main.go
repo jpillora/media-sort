@@ -19,20 +19,20 @@ var help = `
 	media-sort categorizes the provided files and directories by moving them into to a structured directory tree, using the Open Movie Database.
 
 	Movies are moved to:
-		<movie-dir>/<title> (<year>).ext
+		<movie-dir>/<title> (<year>).<ext>
 	TV Shows are moved to:
-		<tv-dir>/<title>/<title> S<season>E<episode>.ext
+		<tv-dir>/<title>/<title> S<season>E<episode>.<ext>
 
 	Version: ` + VERSION + `
 
 	Options:
-	--movie-dir -m  The destination movie directory (defaults to $HOME/movies).
-	--tv-dir -t     The destination TV directory (defaults to $HOME/tv).
-	--ext -e        Extensions considered (defaults to "` + defaultExtensions + `").
-	--dryrun -d     Runs in read-only mode.
-	--depth         Directory depth to search for files.
-	--version -v    Display version.
-	--help -h       This help text.
+	--movie-dir -m The destination movie directory (defaults to $HOME/movies).
+	--tv-dir -t    The destination TV directory (defaults to $HOME/tv).
+	--ext -e       Extensions considered (defaults to "` + defaultExtensions + `").
+	--dryrun -d    Runs in read-only mode.
+	--recursive -r Recursive depth to search through directories (defaults to 1).
+	--version -v   Display version.
+	--help -h      This help text.
 
 	Read more:
 	  https://github.com/jpillora/media-sort
@@ -55,7 +55,8 @@ func main() {
 	flag.StringVar(&c.TVDir, "t", "", "")
 	flag.StringVar(&c.Exts, "ext", defaultExtensions, "")
 	flag.StringVar(&c.Exts, "e", defaultExtensions, "")
-	flag.IntVar(&c.Depth, "depth", 1, "")
+	flag.IntVar(&c.Depth, "recursive", 1, "")
+	flag.IntVar(&c.Depth, "r", 1, "")
 	flag.BoolVar(&c.DryRun, "dryrun", false, "")
 	flag.BoolVar(&c.DryRun, "d", false, "")
 	flag.BoolVar(&c.Watch, "watch", false, "")

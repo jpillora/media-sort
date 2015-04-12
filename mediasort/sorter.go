@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -68,6 +69,11 @@ func New(c Config) (*Sorter, error) {
 
 func (s *Sorter) addFile(path string, info os.FileInfo, depth int) error {
 
+	//skip hidden files and directories
+	if strings.HasPrefix(info.Name(), ".") {
+		return nil
+	}
+
 	//limit recursion depth
 	if depth > s.c.Depth {
 		return nil
@@ -86,6 +92,7 @@ func (s *Sorter) addFile(path string, info os.FileInfo, depth int) error {
 	}
 
 	if info.IsDir() {
+
 		//TODO watch directory
 		// if s.c.Watch {
 		// }
@@ -135,7 +142,7 @@ func (s *Sorter) sortFiles() []error {
 func (s *Sorter) Run() []error {
 
 	if s.c.DryRun {
-		log.Println("[Dryrun Mode]")
+		log.Println(color.CyanString("[Dryrun Mode]"))
 	}
 
 	//just run once

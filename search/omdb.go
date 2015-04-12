@@ -23,7 +23,9 @@ type OMDBResult struct {
 	Type   string
 	ImdbID string
 	//meta
-	Distance int
+	distance int
+	SeriesID string
+	Error    string
 }
 
 type OMDBResults []*OMDBResult
@@ -32,8 +34,8 @@ func (rs OMDBResults) Len() int      { return len(rs) }
 func (rs OMDBResults) Swap(i, j int) { rs[i], rs[j] = rs[j], rs[i] }
 func (rs OMDBResults) Less(i, j int) bool {
 	//sort by string dist
-	if rs[i].Distance != rs[j].Distance {
-		return rs[i].Distance < rs[j].Distance
+	if rs[i].distance != rs[j].distance {
+		return rs[i].distance < rs[j].distance
 	}
 	//sort by newest
 	return rs[i].Year > rs[j].Year
@@ -44,10 +46,13 @@ func omdbRequest(v url.Values) (*http.Response, error) {
 	return http.DefaultClient.Do(req)
 }
 
-func omdbSearch(query string, mediatype string) (imdbID, error) {
+func omdbSearch(query, year, mediatype string) (imdbID, error) {
 
 	v := url.Values{}
 	v.Set("s", query)
+	if year != "" {
+		v.Set("y", year)
+	}
 	if mediatype != "" {
 		v.Set("type", mediatype)
 	}
@@ -69,7 +74,7 @@ func omdbSearch(query string, mediatype string) (imdbID, error) {
 	}
 
 	for _, r := range results {
-		r.Distance, _ = levenshtein.ComputeDistance(query, strings.ToLower(r.Title))
+		r.distance, _ = levenshtein.ComputeDistance(query, strings.ToLower(r.Title))
 	}
 
 	sort.Sort(results)
@@ -95,14 +100,26 @@ func omdbGet(id imdbID) (*OMDBResult, error) {
 	}
 	defer resp.Body.Close()
 
+	// b, _ := ioutil.ReadAll(resp.Body)
+	// return nil, fmt.Errorf("OMDB debug: %s", b)
+
 	r := &OMDBResult{}
 	if err := json.NewDecoder(resp.Body).Decode(r); err != nil {
 		return nil, fmt.Errorf("OMDB Get: Failed to decode: %s", err)
 	}
 
+	if r.Error != "" {
+		return nil, fmt.Errorf("OMDB Error: %s: %s", id, r.Error)
+	}
+
+	//dont allow episode respose, return series instead
+	if r.Type == "episode" {
+		return omdbGet(imdbID(r.SeriesID))
+	}
+
 	m := releaseYear.FindStringSubmatch(r.Year)
 	if len(m) == 0 {
-		return nil, fmt.Errorf("OMDB Get: Invalid year")
+		return nil, fmt.Errorf("OMDB Get: No year: %+v", r)
 	}
 	r.Year = m[1]
 

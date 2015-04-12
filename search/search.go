@@ -2,10 +2,8 @@ package search
 
 import (
 	"fmt"
-	"strings"
+	"regexp"
 	"sync"
-
-	"github.com/agnivade/levenshtein"
 )
 
 type imdbID string
@@ -22,8 +20,10 @@ func init() {
 	inflight = map[string]*sync.WaitGroup{}
 }
 
+var nonalpha = regexp.MustCompile(`[^a-z0-9]`)
+
 //Fuzzy search for IMDB data
-func Do(query string, mediatype string) (*OMDBResult, error) {
+func Do(query, year, mediatype string) (*OMDBResult, error) {
 
 	lock.Lock()
 
@@ -51,10 +51,10 @@ func Do(query string, mediatype string) (*OMDBResult, error) {
 
 	//	since google has strict throttling,
 	//  we first try omdb search
-	id, err := omdbSearch(query, mediatype)
+	id, err := omdbSearch(query, year, mediatype)
 	if err != nil {
 		// then fallback to google
-		id, err = googleSearch(query, mediatype)
+		id, err = googleSearch(query, year, mediatype)
 		if err != nil {
 			return nil, fmt.Errorf("OMDB and Google searches failed")
 		}
@@ -64,13 +64,6 @@ func Do(query string, mediatype string) (*OMDBResult, error) {
 	r, err = omdbGet(id)
 	if err != nil {
 		return nil, err
-	}
-
-	// santiy check
-	r.Distance, _ = levenshtein.ComputeDistance(query, strings.ToLower(r.Title))
-	// incorrect by more than the query!
-	if len(query)-r.Distance < 0 {
-		return nil, fmt.Errorf("Best match was '%s' (%s)", r.Title, mediatype)
 	}
 
 	lock.Lock()

@@ -16,8 +16,11 @@ var imdbIDRe = regexp.MustCompile(`\/(tt\d+)\/`)
 
 //uses im feeling lucky and grabs the "Location"
 //header from the 302, which contains the IMDB ID
-func googleSearch(query string, mediatype string) (imdbID, error) {
+func googleSearch(query, year, mediatype string) (imdbID, error) {
 
+	if year != "" {
+		query += " " + year
+	}
 	if mediatype != "" {
 		query += " " + mediatype
 	}
@@ -52,7 +55,7 @@ func googleSearch(query string, mediatype string) (imdbID, error) {
 
 	url, _ := url.Parse(resp.Header.Get("Location"))
 	if url.Host != "www.imdb.com" {
-		return missingID, errors.New("Invalid result")
+		return missingID, errors.New("Google IMDB redirection failed")
 	}
 
 	m := imdbIDRe.FindStringSubmatch(url.Path)
