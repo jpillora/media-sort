@@ -9,18 +9,18 @@ import (
 	"github.com/jpillora/media-sort/search"
 )
 
-// func PathSearch(path string) (search.Result, error) {
-// 	return ps.run()
-// }
+func Sort(s string) (search.Result, error) {
+	return ps.run()
+}
 
 //PathSort converts the provided path into a
 //well-formatted path based of live media data
 func PathSort(path string) (string, error) {
+
 	ps, err := runPathSort(path)
 	if err != nil {
 		return "", err
 	}
-
 	if ps.mtype == "series" && ps.episodeDate != "" {
 		return filepath.Join(ps.name, fmt.Sprintf("%s %s%s", ps.name, ps.episodeDate, ps.ext)), nil
 	} else if ps.mtype == "series" && ps.episode != "" {
@@ -50,7 +50,8 @@ func runPathSort(path string) (*pathSort, error) {
 		return nil, fmt.Errorf("Skipped sample media")
 	}
 	_, name := filepath.Split(path)
-	ext := filepath.Ext(name)
+	ext := getExtension(name)
+	name = strings.TrimSuffix(name, ext)
 	ps := &pathSort{
 		name:    name,
 		path:    path,

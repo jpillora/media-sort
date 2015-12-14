@@ -6,6 +6,8 @@ import (
 	"sync"
 )
 
+var Debug = true
+
 type search func(string, string, MediaType) ([]Result, error)
 
 //lock protects the cache/inflight maps
@@ -73,6 +75,7 @@ func Search(query, year, mediatype string) (Result, error) {
 
 	//matcher picks result (r)
 	m := matcher{query: query, year: year}
+	otherTypes := []Result{}
 	for _, result := range results {
 		//only consider tv/movies
 		if string(result.Type) != "" && result.Type != Series && result.Type != Movie {
@@ -80,9 +83,16 @@ func Search(query, year, mediatype string) (Result, error) {
 		}
 		//if media type set, ensure match
 		if mediatype != "" && result.Type != mt {
-			continue
+			otherTypes = append(otherTypes, result)
+		} else {
+			m.add(result)
 		}
-		m.add(result)
+	}
+	if len(m.resultSlice) == 0 {
+		//if nothing was added, use mismatched types
+		for _, result := range otherTypes {
+			m.add(result)
+		}
 	}
 	if r, err = m.bestMatch(); err != nil {
 		return Result{}, err

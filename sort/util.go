@@ -15,8 +15,11 @@ var epidate = regexp.MustCompile(`^(.+?\b)(` + yearstr + ` \d{2} \d{2}|\d{2} \d{
 var year = regexp.MustCompile(`^(.+?\b)` + yearstr + `\b`)
 var joinedepiseason = regexp.MustCompile(`^(.+?\b)(\d)(\d{2})\b`)
 var partnum = regexp.MustCompile(`^(.+?\b)(\d{1,2})\b`)
+var extRe = regexp.MustCompile(`\.\w+$`)
 
-//TODO var romannumerals...
+func getExtension(s string) string {
+	return extRe.FindString(s)
+}
 
 func normalize(s string) string {
 	s = strings.ToLower(s)

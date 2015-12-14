@@ -14,3 +14,7 @@ type Result struct {
 	IsDupe  bool
 	strdist int
 }
+
+func (r Result) String() string {
+	return r.Title + " ("+r.Year+")"
+}

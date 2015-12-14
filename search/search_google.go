@@ -2,15 +2,13 @@ package mediasearch
 
 import (
 	"errors"
+	"fmt"
+	"log"
 
 	"net/http"
 	"net/url"
 	"regexp"
 )
-
-var endpoint = ""
-
-// var endpoint = "https://echo.jpillora.com/search"
 
 var imdbIDRe = regexp.MustCompile(`\/(tt\d+)\/`)
 
@@ -24,10 +22,13 @@ func searchGoogle(query, year string, mediatype MediaType) ([]Result, error) {
 	if string(mediatype) != "" {
 		query += " " + string(mediatype)
 	}
-
+	query += " site:imdb.com"
+	if Debug {
+		log.Printf("Searching Google for '%s'", query)
+	}
 	v := url.Values{}
 	v.Set("btnI", "") //I'm feeling lucky
-	v.Set("q", query+" site:imdb.com")
+	v.Set("q", query)
 	urlstr := "https://www.google.com.au/search?" + v.Encode()
 	req, err := http.NewRequest("HEAD", urlstr, nil)
 	if err != nil {
@@ -37,23 +38,27 @@ func searchGoogle(query, year string, mediatype MediaType) ([]Result, error) {
 	//I'm a browser... :)
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) "+
 		"AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36")
-
+	//roundtripper doesn't follow redirects
 	resp, err := http.DefaultTransport.RoundTrip(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	//assume redirection
 	if resp.StatusCode != 302 {
 		return nil, errors.New("Google search failed")
 	}
+	//extract Location header URL
 	url, _ := url.Parse(resp.Header.Get("Location"))
 	if url.Host != "www.imdb.com" {
 		return nil, errors.New("Google IMDB redirection failed")
 	}
+	//extract imdb ID
 	m := imdbIDRe.FindStringSubmatch(url.Path)
 	if len(m) == 0 {
-		return nil, errors.New("No IMDB match")
+		return nil, fmt.Errorf("No IMDB match (%s)", url.Path)
 	}
+	//lookup imdb ID using OMDB
 	r, err := imdbGet(imdbID(m[1]))
 	if err != nil {
 		return nil, err

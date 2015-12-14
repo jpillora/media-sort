@@ -2,6 +2,7 @@ package mediasearch
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -9,7 +10,9 @@ import (
 func searchTVMaze(query, year string, mediatype MediaType) ([]Result, error) {
 	v := url.Values{}
 	v.Set("q", query)
-
+	if Debug {
+		log.Printf("Searching TVMaze for '%s'", query)
+	}
 	urlstr := "http://api.tvmaze.com/search/shows?" + v.Encode()
 	req, err := http.NewRequest("GET", urlstr, nil)
 	if err != nil {

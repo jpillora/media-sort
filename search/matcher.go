@@ -30,9 +30,11 @@ func (m *matcher) bestMatch() (Result, error) {
 		return Result{}, fmt.Errorf("No results")
 	}
 	sort.Sort(m)
-	log.Println("best result from:")
-	for i, r := range m.resultSlice {
-		log.Printf("[%d] %+v", i, r)
+	if Debug {
+		log.Println("Matched results:")
+		for i, r := range m.resultSlice {
+			log.Printf("#%d: %s", i, r)
+		}
 	}
 	r := m.resultSlice[0]
 	if r.strdist > 5 {

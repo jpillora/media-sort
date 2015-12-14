@@ -3,6 +3,7 @@ package mediasearch
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 )
 
@@ -10,7 +11,6 @@ type imdbID string
 
 //imdbGet actually uses omdb because it accepts IMDB IDs
 func imdbGet(id imdbID) (Result, error) {
-
 	v := url.Values{}
 	v.Set("i", string(id))
 
@@ -23,6 +23,9 @@ func imdbGet(id imdbID) (Result, error) {
 	r := &omdbResult{}
 	if err := json.NewDecoder(resp.Body).Decode(r); err != nil {
 		return Result{}, fmt.Errorf("omdb Get: Failed to decode: %s", err)
+	}
+	if Debug {
+		log.Printf("Fetch IMDB entry %s -> %s", id, r)
 	}
 	if r.Error != "" {
 		return Result{}, fmt.Errorf("omdb Error: %s: %s", id, r.Error)
