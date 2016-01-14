@@ -4,16 +4,24 @@ import (
 	"fmt"
 	"log"
 	"sync"
+
+	"github.com/fatih/color"
 )
 
-var Debug = true
+var Debug = false
 
+//search function interface
 type search func(string, string, MediaType) ([]Result, error)
 
+//various searches based on media-type
+var defaultSearches = []search{searchOMDB, searchGoogle}
+var tvSearches = append([]search{searchTVMaze}, defaultSearches...)
+var movieSearches = defaultSearches /*TODO moviedb,*/
+
+//thread-safe global search cache
 //lock protects the cache/inflight maps
-//TODO(jpillora) global cache will grow forever, should convert to LRU cache
 var lock sync.Mutex
-var cache = map[string]Result{}
+var cache = map[string]Result{} //TODO(jpillora) global cache will grow forever, should convert to LRU cache
 var inflight = map[string]*sync.WaitGroup{}
 
 //Fuzzy search for IMDB data (query is required, year and media type are optional)
@@ -46,31 +54,40 @@ func Search(query, year, mediatype string) (Result, error) {
 	w.Add(1)
 	inflight[query] = w
 	lock.Unlock()
-
-	log.Printf("searching for '%s' (%s) from %s", query, string(mediatype), year)
+	//queue up removal of inflight search since cached should be set
+	defer func() {
+		lock.Lock()
+		w.Done()
+		delete(inflight, query)
+		lock.Unlock()
+	}()
+	//show searches
+	msg := fmt.Sprintf("Searching %s", color.CyanString(query))
+	if m := string(mediatype); m != "" {
+		msg += " (" + m + ")"
+	}
+	if year != "" {
+		msg += " from " + year
+	}
+	log.Print(msg)
 
 	//search various search engines
-	var searches []search
+	var searches = defaultSearches
 	if MediaType(mediatype) == Series {
-		searches = []search{searchTVMaze, searchOMDB, searchGoogle}
-	} else if MediaType(mediatype) == Movie {
-		searches = []search{ /*TODO moviedb,*/ searchOMDB, searchGoogle}
-	} else {
-		searches = []search{searchOMDB, searchGoogle}
+		searches = tvSearches
 	}
 
 	//search returns results
 	var results []Result
 	var err error
 	for _, s := range searches {
-		if results, err = s(query, year, mt); err != nil {
-			log.Printf("search error: %s", err)
-		} else if len(results) > 0 {
+		results, err = s(query, year, mt)
+		if len(results) > 0 {
 			break
 		}
 	}
 	if len(results) == 0 {
-		return Result{}, fmt.Errorf("No results")
+		return Result{}, fmt.Errorf("No results (%s)", err)
 	}
 
 	//matcher picks result (r)
@@ -101,7 +118,6 @@ func Search(query, year, mediatype string) (Result, error) {
 	lock.Lock()
 	cache[query] = r
 	lock.Unlock()
-	w.Done()
 
 	return r, nil
 }

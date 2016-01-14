@@ -6,7 +6,7 @@ import (
 	"sort"
 )
 
-//matcher collects and finds the best match
+//matcher collects search results and finds the best match
 type matcher struct {
 	query, year string
 	resultSlice []*Result

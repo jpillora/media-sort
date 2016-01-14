@@ -17,6 +17,21 @@ var joinedepiseason = regexp.MustCompile(`^(.+?\b)(\d)(\d{2})\b`)
 var partnum = regexp.MustCompile(`^(.+?\b)(\d{1,2})\b`)
 var extRe = regexp.MustCompile(`\.\w+$`)
 
+var apost = regexp.MustCompile(`'`)
+var colon = regexp.MustCompile(`:`)
+var invalidChars = regexp.MustCompile(`[^a-zA-Z0-9\_\-\.\ \(\)]`)
+var doubleDash = regexp.MustCompile(`-(\s*-\s*)+ `)
+var doubleSpace = regexp.MustCompile(`\s+`)
+
+func fixPath(s string) string {
+	s = apost.ReplaceAllString(s, "")
+	s = colon.ReplaceAllString(s, " -")
+	s = invalidChars.ReplaceAllString(s, "-")
+	s = doubleDash.ReplaceAllString(s, "- ")
+	s = doubleSpace.ReplaceAllString(s, " ")
+	return s
+}
+
 func getExtension(s string) string {
 	return extRe.FindString(s)
 }
