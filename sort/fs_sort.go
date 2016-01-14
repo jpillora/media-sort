@@ -19,10 +19,10 @@ import (
 
 //Config is a sorter configuration
 type Config struct {
-	Targets           []string `type:"args" min:"1" help:"targets are a list of files or directories to be sorted"`
+	Targets           []string `type:"args" min:"1"`
+	TVDir             string   `help:"tv series base directory"`
+	MovieDir          string   `help:"movie base directory"`
 	PathConfig        `type:"embedded"`
-	TVDir             string        `help:"tv series base directory"`
-	MovieDir          string        `help:"movie base directory"`
 	Extensions        string        `help:"types of files that should be sorted"`
 	Concurrency       int           `help:"search concurrency [warning] setting this too high can cause rate-limiting errors"`
 	FileLimit         int           `help:"maximum number of files to search"`
@@ -54,7 +54,9 @@ type fileSort struct {
 	err    error
 }
 
-//NewfsSort creates a new fsSort
+//FileSystemSort performs a media sort
+//against the file system using the provided
+//configuration
 func FileSystemSort(c Config) error {
 	if c.MovieDir == "" {
 		c.MovieDir = "."

@@ -46,25 +46,19 @@ $ media-sort --help
 ```
 
 <tmpl,code: go run main.go --help>
-``` plain
+``` plain 
 
   Usage: media-sort [options] targets...
 
-  media-sort categorizes the provided files and directories by moving
-  them into to a structured directory tree, using various live sources.
-
-  by default, tv series are moved to:
-    <tv-dir>/<title> S<season>E<episode>.<ext>
-  and movies are moved to:
-    <movie-dir>/<title> (<year>).<ext>
-
-  targets are a list of files or directories to be sorted
+  media-sort categorizes the provided files and directories (targets) by
+  moving them into to a structured directory tree, sorting is currently
+  performed using TVMaze, OMDB and Google.
 
   Options:
-  --tv-file, -t          templated tv series path
-  --movie-file, -m       templated movie path
-  --tv-dir               tv series base directory
-  --movie-dir            movie base directory
+  --tv-dir, -t           tv series base directory
+  --movie-dir, -m        movie base directory
+  --tv-template          tv series path template
+  --movie-template       movie path template
   --extensions, -e       types of files that should be sorted (default
                          mp4,avi,mkv)
   --concurrency, -c      search concurrency [warning] setting this too high
@@ -81,8 +75,21 @@ $ media-sort --help
   --help, -h
   --version, -v
 
+  by default, tv series are moved to:
+    <tv-dir>/<title> S<season>E<episode>.<ext>
+  and movies are moved to:
+    <movie-dir>/<title> (<year>).<ext>
+
+  to modify the these paths, you can use the --tv-template and
+  --movie-template options. These options describe the new file path for
+  tv series and movies using Go template syntax. You can find the
+  default values here:
+    https://godoc.org/github.com/jpillora/media-sort/sort#pkg-variables
+  and you can view all possible template variables here:
+    https://godoc.org/github.com/jpillora/media-sort/sort#Result
+
   Version:
-    2.0.0
+    0.0.0-src
 
   Read more:
     github.com/jpillora/media-sort

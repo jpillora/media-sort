@@ -10,15 +10,27 @@ import (
 
 var VERSION string = "0.0.0-src" //set via ldflags
 
-const info = `
-media-sort categorizes the provided files and directories by moving
-them into to a structured directory tree, using various live sources.
-
+const (
+	info = `
+media-sort categorizes the provided files and directories (targets) by
+moving them into to a structured directory tree, sorting is currently
+performed using TVMaze, OMDB and Google.
+`
+	pathTemplates = `
 by default, tv series are moved to:
   <tv-dir>/<title> S<season>E<episode>.<ext>
 and movies are moved to:
   <movie-dir>/<title> (<year>).<ext>
+
+to modify the these paths, you can use the --tv-template and
+--movie-template options. These options describe the new file path for
+tv series and movies using Go template syntax. You can find the
+default values here:
+  https://godoc.org/github.com/jpillora/media-sort/sort#pkg-variables
+and you can view all possible template variables here:
+  https://godoc.org/github.com/jpillora/media-sort/sort#Result
 `
+)
 
 func main() {
 
@@ -33,6 +45,7 @@ func main() {
 		Name("media-sort").
 		Repo("github.com/jpillora/media-sort").
 		DocAfter("usage", "info", info).
+		DocAfter("options", "pathtemplates", pathTemplates).
 		Version(VERSION).
 		Parse()
 

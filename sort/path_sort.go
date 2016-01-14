@@ -26,13 +26,13 @@ type Result struct {
 }
 
 var (
-	DefaultTVFile    = "{{ .Name }} S{{ padzero .Season 2 }}E{{ padzero .Episode 2 }}.{{ .Ext }}"
-	DefaultMovieFile = "{{ .Name }} ({{ .Year }}).{{ .Ext }}"
+	DefaultTVTemplate    = "{{ .Name }} S{{ padzero .Season 2 }}E{{ padzero .Episode 2 }}.{{ .Ext }}"
+	DefaultMovieTemplate = "{{ .Name }} ({{ .Year }}).{{ .Ext }}"
 )
 
 type PathConfig struct {
-	TVFile    string `help:"templated tv series path"`
-	MovieFile string `help:"templated movie path"`
+	TVTemplate    string `help:"tv series path template"`
+	MovieTemplate string `help:"movie path template"`
 }
 
 var prettyPathFuncs = template.FuncMap{
@@ -53,19 +53,19 @@ var prettyPathFuncs = template.FuncMap{
 //"pretty" cleanly formatted path using the media result
 func (result *Result) PrettyPath(config PathConfig) (string, error) {
 	//config
-	if config.TVFile == "" {
-		config.TVFile = DefaultTVFile
+	if config.TVTemplate == "" {
+		config.TVTemplate = DefaultTVTemplate
 	}
-	if config.MovieFile == "" {
-		config.MovieFile = DefaultMovieFile
+	if config.MovieTemplate == "" {
+		config.MovieTemplate = DefaultMovieTemplate
 	}
 	//find template
 	tmpl := ""
 	switch mediasearch.MediaType(result.MType) {
 	case mediasearch.Series:
-		tmpl = config.TVFile
+		tmpl = config.TVTemplate
 	case mediasearch.Movie:
-		tmpl = config.MovieFile
+		tmpl = config.MovieTemplate
 	default:
 		return "", fmt.Errorf("Invalid result type: %s", result.MType)
 	}
