@@ -1,7 +1,8 @@
-
 # media-sort
 
-A command-line tool which categorizes provided files and directories by moving them into to a structured directory tree, using the [Open Movie Database API](http://www.omdbapi.com/).
+[![GoDoc](https://godoc.org/github.com/jpillora/media-sort?status.svg)](https://godoc.org/github.com/jpillora/media-sort)
+
+A command-line tool which categorizes provided files and directories by moving them into to a structured directory tree, using various live sources.
 
 ### Install
 
@@ -19,16 +20,17 @@ $ go get -v github.com/jpillora/media-sort
 
 * Cross platform single binary
 * No dependencies
-* Plex compatible directory structure
+* Easily create [Plex](https://plex.tv) compatible directory structure
 * Integration with uTorrent and qbittorrent "Run on Completion" option
 
 ### Quick use
 
 ``` sh
-$ curl i.jpillora.com/media-sort | sh
-Downloading: media-sort_1.1.0_darwin_amd64
+$ curl i.jpillora.com/media-sort | bash
+Downloading media-sort...
+Latest version is 2.0.0
 ######################################### 100.0%
-$ ./media-sort --dryrun .
+$ ./media-sort --dryrun --recursive .
 ```
 
 Optionally move into `$PATH`
@@ -37,41 +39,56 @@ Optionally move into `$PATH`
 mv media-sort /usr/local/bin/
 ```
 
-### Usage
+### CLI Usage
 
 ```
 $ media-sort --help
 ```
 
 <tmpl,code: go run main.go --help>
-```
+``` plain
 
-	Usage: media-sort [options] [file/directory] [file/directory]...
+  Usage: media-sort [options] targets...
 
-	media-sort categorizes the provided files and directories by moving them into to a structured directory tree, using the Open Movie Database API.
+  media-sort categorizes the provided files and directories by moving
+  them into to a structured directory tree, using various live sources.
 
-	Movies are moved to:
-		<movie-dir>/<title> (<year>).<ext>
-	TV Shows are moved to:
-		<tv-dir>/<title>/<title> S<season>E<episode>.<ext>
+  by default, tv series are moved to:
+    <tv-dir>/<title> S<season>E<episode>.<ext>
+  and movies are moved to:
+    <movie-dir>/<title> (<year>).<ext>
 
-	Version: 0.0.0
+  targets are a list of files or directories to be sorted
 
-	Options:
-	--movie-dir -m The destination movie directory (defaults to $HOME/movies).
-	--tv-dir -t    The destination TV directory (defaults to $HOME/tv).
-	--ext -e       Extensions considered (defaults to "mp4,avi,mkv").
-	--dryrun -d    Runs in read-only mode.
-	--recursive -r Recursive depth to search through directories (defaults to 1).
-	--version -v   Display version.
-	--help -h      This help text.
+  Options:
+  --tv-file, -t          templated tv series path
+  --movie-file, -m       templated movie path
+  --tv-dir               tv series base directory
+  --movie-dir            movie base directory
+  --extensions, -e       types of files that should be sorted (default
+                         mp4,avi,mkv)
+  --concurrency, -c      search concurrency [warning] setting this too high
+                         can cause rate-limiting errors (default 6)
+  --file-limit, -f       maximum number of files to search (default 1000)
+  --recursive, -r        also search through subdirectories
+  --dry-run, -d          perform sort but don't actually move any files
+  --skip-hidden, -s      skip dot files
+  --overwrite, -o        overwrites duplicates
+  --overwrite-if-larger  overwrites duplicates if the new file is larger
+  --watch, -w            watch the specified directories for changes and
+                         re-sort on change
+  --watch-delay          delay before next sort after a change (default 3s)
+  --help, -h
+  --version, -v
 
-	Read more:
-	  https://github.com/jpillora/media-sort
+  Version:
+    2.0.0
+
+  Read more:
+    github.com/jpillora/media-sort
 
 ```
 </tmpl>
-
 
 #### MIT License
 

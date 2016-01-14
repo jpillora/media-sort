@@ -31,6 +31,7 @@ func main() {
 
 	opts.New(&c).
 		Name("media-sort").
+		Repo("github.com/jpillora/media-sort").
 		DocAfter("usage", "info", info).
 		Version(VERSION).
 		Parse()
