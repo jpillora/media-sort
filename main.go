@@ -18,9 +18,9 @@ performed using TVMaze, OMDB and Google.
 `
 	pathTemplates = `
 by default, tv series are moved to:
-  <tv-dir>/<title> S<season>E<episode>.<ext>
+  ./<title> S<season>E<episode>.<ext>
 and movies are moved to:
-  <movie-dir>/<title> (<year>).<ext>
+  ./<title> (<year>).<ext>
 
 to modify the these paths, you can use the --tv-template and
 --movie-template options. These options describe the new file path for

@@ -20,8 +20,8 @@ import (
 //Config is a sorter configuration
 type Config struct {
 	Targets           []string `type:"args" min:"1"`
-	TVDir             string   `help:"tv series base directory"`
-	MovieDir          string   `help:"movie base directory"`
+	TVDir             string   `help:"tv series base directory (defaults to current directory)"`
+	MovieDir          string   `help:"movie base directory (defaults to current directory)"`
 	PathConfig        `type:"embedded"`
 	Extensions        string        `help:"types of files that should be sorted"`
 	Concurrency       int           `help:"search concurrency [warning] setting this too high can cause rate-limiting errors"`
