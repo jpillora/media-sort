@@ -13,6 +13,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/jpillora/media-sort/search"
+	"github.com/jpillora/sizestr"
 
 	"gopkg.in/fsnotify.v1"
 )
@@ -26,6 +27,7 @@ type Config struct {
 	Extensions        string        `help:"types of files that should be sorted"`
 	Concurrency       int           `help:"search concurrency [warning] setting this too high can cause rate-limiting errors"`
 	FileLimit         int           `help:"maximum number of files to search"`
+	MinFileSize       sizestr.Bytes `help:"minimum file size"`
 	Recursive         bool          `help:"also search through subdirectories"`
 	DryRun            bool          `help:"perform sort but don't actually move any files"`
 	SkipHidden        bool          `help:"skip dot files"`
@@ -33,6 +35,7 @@ type Config struct {
 	OverwriteIfLarger bool          `help:"overwrites duplicates if the new file is larger"`
 	Watch             bool          `help:"watch the specified directories for changes and re-sort on change"`
 	WatchDelay        time.Duration `help:"delay before next sort after a change"`
+	Verbose           bool          `help:"verbose logs"`
 }
 
 //fsSort is a media sorter
@@ -91,9 +94,11 @@ func FileSystemSort(c Config) error {
 		if fs.Watch && len(fs.dirs) == 0 {
 			return errors.New("No directories to watch")
 		}
-		//moment of truth - sort all files!
-		if err := fs.sortAllFiles(); err != nil {
-			return err
+		if len(fs.sorts) > 0 {
+			//moment of truth - sort all files!
+			if err := fs.sortAllFiles(); err != nil {
+				return err
+			}
 		}
 		//watch directories
 		if !c.Watch {
@@ -107,8 +112,10 @@ func FileSystemSort(c Config) error {
 }
 
 func (fs *fsSort) scan() error {
+	fs.verbf("scanning targets...")
 	//scan targets for media files
 	for _, path := range fs.Targets {
+		fs.verbf("scanning: %s", path)
 		info, err := os.Stat(path)
 		if err != nil {
 			return err
@@ -121,16 +128,18 @@ func (fs *fsSort) scan() error {
 	if len(fs.sorts) == 0 && (!fs.Watch || len(fs.dirs) == 0) {
 		return fmt.Errorf("No sortable files found (%d files checked)", fs.stats.found)
 	}
+	fs.verbf("scanned targets. found #%d", fs.stats.found)
 	return nil
 }
 
 func (fs *fsSort) sortAllFiles() error {
+	fs.verbf("sorting files...")
 	//perform sort
 	if fs.DryRun {
 		log.Println(color.CyanString("[Dryrun]"))
 	}
 	//sort concurrency-many files at a time,
-	//wait for all to complete and keep errors
+	//wait for all to complete and show errors
 	queue := make(chan bool, fs.Concurrency)
 	wg := &sync.WaitGroup{}
 	sortFile := func(file *fileSort) {
@@ -165,7 +174,8 @@ func (fs *fsSort) watch() error {
 	}
 	select {
 	case <-watcher.Events:
-	case <-watcher.Errors:
+	case err := <-watcher.Errors:
+		fs.verbf("watch error detected: %s", err)
 	}
 	go watcher.Close()
 	log.Printf("Change detected, re-sorting in %s...", fs.WatchDelay)
@@ -176,17 +186,26 @@ func (fs *fsSort) watch() error {
 func (fs *fsSort) add(path string, info os.FileInfo) error {
 	//skip hidden files and directories
 	if fs.SkipHidden && strings.HasPrefix(info.Name(), ".") {
+		fs.verbf("skip hidden file: %s", path)
 		return nil
 	}
 	//limit recursion depth
 	if len(fs.sorts) >= fs.FileLimit {
+		fs.verbf("skip file: %s. surpassed file limit: %d", path, fs.FileLimit)
 		return nil
 	}
 	//add regular files (non-symlinks)
 	if info.Mode().IsRegular() {
 		fs.stats.found++
+		//skip unmatched file types
 		if !fs.validExts[filepath.Ext(path)] {
-			return nil //skip invalid media file
+			fs.verbf("skip unmatched file ext: %s", path)
+			return nil
+		}
+		//skip small files
+		if info.Size() < int64(fs.MinFileSize) {
+			fs.verbf("skip small file: %s", path)
+			return nil
 		}
 		fs.sorts[path] = &fileSort{id: len(fs.sorts) + 1, path: path, info: info}
 		fs.stats.matched++
@@ -212,6 +231,7 @@ func (fs *fsSort) add(path string, info os.FileInfo) error {
 			}
 		}
 	}
+	fs.verbf("skip non-regular file: %s", path)
 	//skip links,pipes,etc
 	return nil
 }
@@ -235,9 +255,19 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 		return fmt.Errorf("Invalid result type: %s", result.MType)
 	}
 	newPath = filepath.Join(baseDir, newPath)
+
+	//check for subs.srt file
+	pathSubs := strings.TrimSuffix(result.Path, filepath.Ext(result.Path)) + ".srt"
+	_, err = os.Stat(pathSubs)
+	hasSubs := err == nil
+	subsExt := ""
+	if hasSubs {
+		subsExt = "," + color.GreenString("srt")
+	}
+
 	//DEBUG
 	// log.Printf("SUCCESS = D%d #%d\n  %s\n  %s", r.Distance, len(query), query, r.Title)
-	log.Printf("[#%d/%d] %s\n  └─> %s", file.id, len(fs.sorts), color.GreenString(result.Path), color.GreenString(newPath))
+	log.Printf("[#%d/%d] %s\n  └─> %s", file.id, len(fs.sorts), color.GreenString(result.Path)+subsExt, color.GreenString(newPath)+subsExt)
 	if fs.DryRun {
 		return nil //dont actually move
 	}
@@ -267,10 +297,15 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 		return err //failed to move
 	}
 	//if .srt file exists for the file, mv it too
-	pathSubs := strings.TrimSuffix(result.Path, filepath.Ext(result.Path)) + ".srt"
-	if _, err := os.Stat(pathSubs); err == nil {
+	if hasSubs {
 		newPathSubs := strings.TrimSuffix(newPath, filepath.Ext(newPath)) + ".srt"
 		os.Rename(pathSubs, newPathSubs) //best-effort
 	}
 	return nil
+}
+
+func (fs *fsSort) verbf(f string, args ...interface{}) {
+	if fs.Verbose {
+		log.Printf(f, args...)
+	}
 }

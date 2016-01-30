@@ -6,6 +6,7 @@ import (
 
 	"github.com/jpillora/media-sort/sort"
 	"github.com/jpillora/opts"
+	"github.com/jpillora/sizestr"
 )
 
 var VERSION string = "0.0.0-src" //set via ldflags
@@ -33,11 +34,11 @@ and you can view all possible template variables here:
 )
 
 func main() {
-
 	c := mediasort.Config{
 		Extensions:  "mp4,avi,mkv",
 		Concurrency: 6,
 		FileLimit:   1000,
+		MinFileSize: sizestr.Bytes(sizestr.MustParse("25MB")),
 		WatchDelay:  3 * time.Second,
 	}
 

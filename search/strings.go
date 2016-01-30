@@ -22,7 +22,7 @@ var partnum = regexp.MustCompile(`^(.+?\b)(\d{1,2})\b`)
 
 //TODO var romannumerals...
 
-func normalize(s string) string {
+func Normalize(s string) string {
 	s = strings.ToLower(s)
 	s = nonalpha.ReplaceAllString(s, " ")
 	s = encodings.ReplaceAllString(s, "")
@@ -39,9 +39,9 @@ func abs(n int) int {
 }
 
 func dist(a, b string) int {
-	a = normalize(a)
-	b = normalize(b)
-	d, _ := levenshtein.ComputeDistance(a, b)
+	a = Normalize(a)
+	b = Normalize(b)
+	d, _ := levenshtein.ComputeDistance(a, b) //this never actually returns an error
 	return d
 }
 

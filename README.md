@@ -20,7 +20,7 @@ $ go get -v github.com/jpillora/media-sort
 
 * Cross platform single binary
 * No dependencies
-* Easily create [Plex](https://plex.tv) compatible directory structure
+* Easily create a [Plex](https://plex.tv)-compatible directory structure
 * Integration with uTorrent and qbittorrent "Run on Completion" option
 
 ### Quick use
@@ -28,7 +28,7 @@ $ go get -v github.com/jpillora/media-sort
 ``` sh
 $ curl i.jpillora.com/media-sort | bash
 Downloading media-sort...
-Latest version is 2.0.0
+Latest version is 2.X.X
 ######################################### 100.0%
 $ ./media-sort --dryrun --recursive .
 ```
@@ -36,7 +36,18 @@ $ ./media-sort --dryrun --recursive .
 Optionally move into `$PATH`
 
 ```
-mv media-sort /usr/local/bin/
+$ mv media-sort /usr/local/bin/
+```
+
+Test run `media-sort`
+
+```
+$ cd my-media/
+$ media-sort --dry-run --recursive .
+2016/01/30 09:35:47 [Dryrun]
+2016/01/30 09:35:47 Searching dick van dyke show (series)
+2016/01/30 09:35:47 [#1/1] dick-van-dyke-show.s01e10.[Awesome-Audio]-[Super-Quality]-[Name-of-Encoder].mp4
+  └─> The Dick Van Dyke Show S01E10.mp4
 ```
 
 ### CLI Usage
@@ -46,7 +57,7 @@ $ media-sort --help
 ```
 
 <tmpl,code: go run main.go --help>
-``` plain 
+``` plain
 
   Usage: media-sort [options] targets...
 
@@ -65,6 +76,7 @@ $ media-sort --help
   --concurrency, -c      search concurrency [warning] setting this too high
                          can cause rate-limiting errors (default 6)
   --file-limit, -f       maximum number of files to search (default 1000)
+  --min-file-size        minimum file size (default 25MB)
   --recursive, -r        also search through subdirectories
   --dry-run, -d          perform sort but don't actually move any files
   --skip-hidden, -s      skip dot files
@@ -73,8 +85,9 @@ $ media-sort --help
   --watch, -w            watch the specified directories for changes and
                          re-sort on change
   --watch-delay          delay before next sort after a change (default 3s)
+  --verbose, -v          verbose logs
   --help, -h
-  --version, -v
+  --version
 
   by default, tv series are moved to:
     ./<title> S<season>E<episode>.<ext>
@@ -98,9 +111,22 @@ $ media-sort --help
 ```
 </tmpl>
 
+#### Programmatic Use
+
+See https://godoc.org/github.com/jpillora/media-sort
+
+The API has 3 layers:
+
+1. An explicit search: `mediasearch.Search(query, year, mediatype string) (mediasearch.Result, error)`
+    Returns search result
+2. A path string correction (using `Search`): `mediasort.Sort(path string) (*mediasort.Result, error)`
+    Attempts to extract search query information from the path string, returns result which can be used to format a new path or `result.PrettyPath()` can be used.
+3. A filesystem correction (using `Sort`): `mediasort.FileSystemSort(config mediasort.Config) error`
+    Attempts to sort all paths provided in `config.Targets`, when successful - results are formatted and renamed to use the newly formatted path.
+
 #### MIT License
 
-Copyright © 2015 Jaime Pillora &lt;dev@jpillora.com&gt;
+Copyright © 2016 Jaime Pillora &lt;dev@jpillora.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

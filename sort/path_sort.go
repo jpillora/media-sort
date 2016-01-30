@@ -3,6 +3,7 @@ package mediasort
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -16,17 +17,18 @@ func Sort(path string) (*Result, error) {
 }
 
 type Result struct {
-	Query           string
-	Name, Path      string
-	Ext             string
-	MType           string
-	Season, Episode string
-	EpisodeDate     string //weekly series
-	Year            string
+	Query                         string
+	Name, Path                    string
+	Ext                           string
+	MType                         string
+	Season, Episode, ExtraEpisode int
+	EpisodeDate                   string //weekly series
+	Year                          string
 }
 
 var (
-	DefaultTVTemplate    = "{{ .Name }} S{{ padzero .Season 2 }}E{{ padzero .Episode 2 }}.{{ .Ext }}"
+	DefaultTVTemplate = `{{ .Name }} S{{ printf "%02d" .Season }}E{{ printf "%02d" .Episode }}` +
+		`{{ if ne .ExtraEpisode -1 }}-{{ printf "%02d" .ExtraEpisode }}{{end}}.{{ .Ext }}`
 	DefaultMovieTemplate = "{{ .Name }} ({{ .Year }}).{{ .Ext }}"
 )
 
@@ -35,19 +37,7 @@ type PathConfig struct {
 	MovieTemplate string `help:"movie path template"`
 }
 
-var prettyPathFuncs = template.FuncMap{
-	"padzero": func(n string, pad int) string {
-		i, err := strconv.Atoi(n)
-		if err != nil {
-			return n
-		}
-		n = strconv.Itoa(i)
-		for len(n) < pad {
-			n = "0" + n
-		}
-		return n
-	},
-}
+var prettyPathFuncs = template.FuncMap{}
 
 //PrettyPath converts the provided "messy" path into a
 //"pretty" cleanly formatted path using the media result
@@ -89,14 +79,15 @@ func runPathSort(path string) (*Result, error) {
 	ext := getExtension(name)
 	name = strings.TrimSuffix(name, ext)
 	result := &Result{
-		Name:    name,
-		Path:    path,
-		Ext:     strings.TrimPrefix(ext, "."),
-		Season:  "1",
-		Episode: "",
+		Name:         name,
+		Path:         path,
+		Ext:          strings.TrimPrefix(ext, "."),
+		Season:       1,
+		Episode:      -1,
+		ExtraEpisode: -1,
 	}
 	//normalize name
-	query := normalize(result.Name)
+	query := mediasearch.Normalize(result.Name)
 	//extract episode date (weekly show)
 	if result.MType == "" {
 		m := epidate.FindStringSubmatch(query)
@@ -108,12 +99,24 @@ func runPathSort(path string) (*Result, error) {
 	}
 	//extract episde season numbers
 	if result.MType == "" {
+		m := doubleepiseason.FindStringSubmatch(query)
+		if len(m) > 0 {
+			query = m[1] //trim name
+			result.MType = "series"
+			result.Season, _ = strconv.Atoi(m[2])
+			result.Episode, _ = strconv.Atoi(m[4])
+			result.ExtraEpisode, _ = strconv.Atoi(m[6])
+			log.Println(m[2], m[4], m[6])
+		}
+	}
+	//extract episde season numbers
+	if result.MType == "" {
 		m := episeason.FindStringSubmatch(query)
 		if len(m) > 0 {
 			query = m[1] //trim name
 			result.MType = "series"
-			result.Season = m[3]
-			result.Episode = m[6]
+			result.Season, _ = strconv.Atoi(m[3])
+			result.Episode, _ = strconv.Atoi(m[6])
 		}
 	}
 	//extract *joined* episde season numbers
@@ -122,8 +125,8 @@ func runPathSort(path string) (*Result, error) {
 		if len(m) > 0 {
 			query = m[1] //trim name
 			result.MType = "series"
-			result.Season = m[2]
-			result.Episode = m[3]
+			result.Season, _ = strconv.Atoi(m[2])
+			result.Episode, _ = strconv.Atoi(m[3])
 		}
 	}
 	//extract release year
@@ -139,7 +142,7 @@ func runPathSort(path string) (*Result, error) {
 	if result.MType == "" {
 		m := partnum.FindStringSubmatch(query)
 		if len(m) > 0 {
-			result.Episode = m[2]
+			result.Episode, _ = strconv.Atoi(m[2])
 		}
 	}
 	//trim spaces
