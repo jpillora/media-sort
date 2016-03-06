@@ -9,6 +9,7 @@ import (
 )
 
 var Debug = false
+var Info = true
 
 //search function interface
 type search func(string, string, MediaType) ([]Result, error)
@@ -62,15 +63,16 @@ func Search(query, year, mediatype string) (Result, error) {
 		lock.Unlock()
 	}()
 	//show searches
-	msg := fmt.Sprintf("Searching %s", color.CyanString(query))
-	if m := string(mediatype); m != "" {
-		msg += " (" + m + ")"
+	if Info {
+		msg := fmt.Sprintf("Searching %s", color.CyanString(query))
+		if m := string(mediatype); m != "" {
+			msg += " (" + m + ")"
+		}
+		if year != "" {
+			msg += " from " + year
+		}
+		log.Print(msg)
 	}
-	if year != "" {
-		msg += " from " + year
-	}
-	log.Print(msg)
-
 	//search various search engines
 	var searches = defaultSearches
 	if MediaType(mediatype) == Series {

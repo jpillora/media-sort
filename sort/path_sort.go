@@ -3,7 +3,6 @@ package mediasort
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -106,7 +105,6 @@ func runPathSort(path string) (*Result, error) {
 			result.Season, _ = strconv.Atoi(m[2])
 			result.Episode, _ = strconv.Atoi(m[4])
 			result.ExtraEpisode, _ = strconv.Atoi(m[6])
-			log.Println(m[2], m[4], m[6])
 		}
 	}
 	//extract episde season numbers
