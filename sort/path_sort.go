@@ -87,6 +87,15 @@ func runPathSort(path string) (*Result, error) {
 	}
 	//normalize name
 	query := mediasearch.Normalize(result.Name)
+	//extract release year
+	m := year.FindStringSubmatch(query)
+	if len(m) > 0 {
+		query = m[1] //trim name
+		if result.MType == "" {
+			result.MType = "movie" //set type to "movie", if not already set
+		}
+		result.Year = m[2]
+	}
 	//extract episode date (weekly show)
 	if result.MType == "" {
 		m := epidate.FindStringSubmatch(query)
@@ -126,15 +135,6 @@ func runPathSort(path string) (*Result, error) {
 			result.Season, _ = strconv.Atoi(m[2])
 			result.Episode, _ = strconv.Atoi(m[3])
 		}
-	}
-	//extract release year
-	m := year.FindStringSubmatch(query)
-	if len(m) > 0 {
-		query = m[1] //trim name
-		if result.MType == "" {
-			result.MType = "movie" //set type to "movie", if not already set
-		}
-		result.Year = m[2]
 	}
 	//if the above fails, extract "Part 1/2/3..."
 	if result.MType == "" {
