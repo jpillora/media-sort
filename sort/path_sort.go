@@ -105,7 +105,7 @@ func runPathSort(path string) (*Result, error) {
 			result.EpisodeDate = strings.Replace(m[2], " ", "-", 2)
 		}
 	}
-	//extract episde season numbers
+	//extract double episde season numbers
 	if result.MType == "" {
 		m := doubleepiseason.FindStringSubmatch(query)
 		if len(m) > 0 {
