@@ -41,7 +41,7 @@ func abs(n int) int {
 func dist(a, b string) int {
 	a = Normalize(a)
 	b = Normalize(b)
-	d, _ := levenshtein.ComputeDistance(a, b) //this never actually returns an error
+	d := levenshtein.ComputeDistance(a, b) //this never actually returns an error
 	return d
 }
 
