@@ -277,11 +277,8 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 
 	//check already exists
 	if newInfo, err := os.Stat(newPath); err == nil {
-		newIsLarger := newInfo.Size() > file.info.Size()
-		overwrite := fs.Overwrite
-		if !overwrite && fs.OverwriteIfLarger && newIsLarger {
-			overwrite = true
-		}
+		fileIsLarger := file.info.Size() > newInfo.Size()
+		overwrite := fs.Overwrite || (fs.OverwriteIfLarger && fileIsLarger)
 		if !overwrite {
 			return fmt.Errorf("File already exists '%s' (try setting --overwrite)", newPath)
 		}
