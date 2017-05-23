@@ -30,7 +30,7 @@ func (m *matcher) bestMatch() (Result, error) {
 		return Result{}, fmt.Errorf("No results")
 	}
 	sort.Sort(m)
-	if Debug {
+	if debugMode {
 		log.Println("Matched results:")
 		for i, r := range m.resultSlice {
 			log.Printf("#%d: %s", i, r)

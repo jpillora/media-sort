@@ -24,7 +24,7 @@ func imdbGet(id imdbID) (Result, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		return Result{}, fmt.Errorf("omdb Get: Failed to decode: %s", err)
 	}
-	if Debug {
+	if debugMode {
 		log.Printf("Fetch IMDB entry %s -> %+v", id, data)
 	}
 	if resp.StatusCode != http.StatusOK {

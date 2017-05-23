@@ -22,7 +22,7 @@ func searchMovieDB(query, year string, mediatype MediaType) ([]Result, error) {
 	if year != "" {
 		v.Set(yearKey, year)
 	}
-	if Debug {
+	if debugMode {
 		log.Printf("Searching MovieDB API for '%s'", query)
 	}
 	resp, err := movieDBRequest(path, v)

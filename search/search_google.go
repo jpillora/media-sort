@@ -23,7 +23,7 @@ func searchGoogle(query, year string, mediatype MediaType) ([]Result, error) {
 		query += " " + string(mediatype)
 	}
 	query += " site:imdb.com"
-	if Debug {
+	if debugMode {
 		log.Printf("Searching Google for '%s'", query)
 	}
 	v := url.Values{}

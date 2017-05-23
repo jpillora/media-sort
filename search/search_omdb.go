@@ -32,7 +32,7 @@ func searchOMDB(query, year string, mediatype MediaType) ([]Result, error) {
 	// if string(mediatype) != "" {
 	// 	v.Set("type", string(mediatype))
 	// }
-	if Debug {
+	if debugMode {
 		log.Printf("Searching OMDB API for '%s'", query)
 	}
 	resp, err := omdbRequest(v)

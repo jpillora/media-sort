@@ -15,7 +15,7 @@ const (
 	info = `
 media-sort categorizes the provided files and directories (targets) by
 moving them into to a structured directory tree, sorting is currently
-performed using TVMaze, OMDB and Google.
+performed using TVMaze, MovieDB and Google.
 `
 	pathTemplates = `
 by default, tv series are moved to:

@@ -10,7 +10,7 @@ import (
 func searchTVMaze(query, year string, mediatype MediaType) ([]Result, error) {
 	v := url.Values{}
 	v.Set("q", query)
-	if Debug {
+	if debugMode {
 		log.Printf("Searching TVMaze for '%s'", query)
 	}
 	urlstr := "http://api.tvmaze.com/search/shows?" + v.Encode()

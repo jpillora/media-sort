@@ -8,10 +8,7 @@ import (
 	"github.com/fatih/color"
 )
 
-const (
-	Debug = false
-	Info  = true
-)
+const debugMode = false
 
 //search function interface
 type search func(string, string, MediaType) ([]Result, error)
@@ -19,7 +16,7 @@ type search func(string, string, MediaType) ([]Result, error)
 //various searches based on media-type
 var defaultSearches = []search{searchMovieDB, searchGoogle}
 var tvSearches = append([]search{searchTVMaze}, defaultSearches...)
-var movieSearches = defaultSearches /*TODO moviedb,*/
+var movieSearches = defaultSearches
 
 //thread-safe global search cache
 //lock protects the cache/inflight maps
@@ -65,16 +62,14 @@ func Search(query, year, mediatype string) (Result, error) {
 		lock.Unlock()
 	}()
 	//show searches
-	if Info {
-		msg := fmt.Sprintf("Searching %s", color.CyanString(query))
-		if m := string(mediatype); m != "" {
-			msg += " (" + color.CyanString(m) + ")"
-		}
-		if year != "" {
-			msg += " from " + color.CyanString(year)
-		}
-		log.Print(msg)
+	msg := fmt.Sprintf("Searching %s", color.CyanString(query))
+	if m := string(mediatype); m != "" {
+		msg += " (" + color.CyanString(m) + ")"
 	}
+	if year != "" {
+		msg += " from " + color.CyanString(year)
+	}
+	log.Print(msg)
 	//search various search engines
 	var searcheEngines = defaultSearches
 	if MediaType(mediatype) == Series {

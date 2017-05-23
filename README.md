@@ -2,13 +2,15 @@
 
 [![GoDoc](https://godoc.org/github.com/jpillora/media-sort?status.svg)](https://godoc.org/github.com/jpillora/media-sort)
 
-A command-line tool which categorizes provided files and directories by moving them into to a structured directory tree, using various live sources.
+A command-line tool and Go (golang) library which categorizes provided files and directories by moving them into to a structured directory tree, using various live sources.
 
 ### Install
 
 **Binaries**
 
-See [the latest release](https://github.com/jpillora/media-sort/releases/latest) and one-line downloader `curl i.jpillora.com/media-sort | bash`
+[![Releases](https://img.shields.io/github/release/jpillora/media-sort.svg)](https://github.com/jpillora/media-sort/releases) [![Releases](https://img.shields.io/github/downloads/jpillora/media-sort/total.svg)](https://github.com/jpillora/media-sort/releases)
+
+See [the latest release](https://github.com/jpillora/media-sort/releases/latest) or download and install it now with `curl https://i.jpillora.com/media-sort! | bash`
 
 **Source**
 
@@ -26,7 +28,7 @@ $ go get -v github.com/jpillora/media-sort
 ### Quick use
 
 ``` sh
-$ curl i.jpillora.com/media-sort | bash
+$ curl https://i.jpillora.com/media-sort | bash
 Downloading media-sort...
 Latest version is 2.X.X
 ######################################### 100.0%
