@@ -8,14 +8,16 @@ import (
 	"github.com/fatih/color"
 )
 
-var Debug = false
-var Info = true
+const (
+	Debug = false
+	Info  = true
+)
 
 //search function interface
 type search func(string, string, MediaType) ([]Result, error)
 
 //various searches based on media-type
-var defaultSearches = []search{searchOMDB, searchGoogle}
+var defaultSearches = []search{searchMovieDB, searchGoogle}
 var tvSearches = append([]search{searchTVMaze}, defaultSearches...)
 var movieSearches = defaultSearches /*TODO moviedb,*/
 
@@ -25,7 +27,7 @@ var lock sync.Mutex
 var cache = map[string]Result{} //TODO(jpillora) global cache will grow forever, should convert to LRU cache
 var inflight = map[string]*sync.WaitGroup{}
 
-//Fuzzy search for IMDB data (query is required, year and media type are optional)
+//Search for IMDB data (query is required, year and media type are optional)
 func Search(query, year, mediatype string) (Result, error) {
 	if year != "" && !onlyYear.MatchString(year) {
 		return Result{}, fmt.Errorf("Invalid year (%s)", year)
@@ -66,23 +68,23 @@ func Search(query, year, mediatype string) (Result, error) {
 	if Info {
 		msg := fmt.Sprintf("Searching %s", color.CyanString(query))
 		if m := string(mediatype); m != "" {
-			msg += " (" + m + ")"
+			msg += " (" + color.CyanString(m) + ")"
 		}
 		if year != "" {
-			msg += " from " + year
+			msg += " from " + color.CyanString(year)
 		}
 		log.Print(msg)
 	}
 	//search various search engines
-	var searches = defaultSearches
+	var searcheEngines = defaultSearches
 	if MediaType(mediatype) == Series {
-		searches = tvSearches
+		searcheEngines = tvSearches
 	}
 
 	//search returns results
 	var results []Result
 	var err error
-	for _, s := range searches {
+	for _, s := range searcheEngines {
 		results, err = s(query, year, mt)
 		if len(results) > 0 {
 			break

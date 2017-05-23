@@ -4,40 +4,42 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"net/url"
 )
 
 type imdbID string
 
-//imdbGet actually uses omdb because it accepts IMDB IDs
+//imdbGet uses movie DB because it accepts IMDB IDs
 func imdbGet(id imdbID) (Result, error) {
 	v := url.Values{}
-	v.Set("i", string(id))
-
-	resp, err := omdbRequest(v)
+	v.Set("external_source", "imdb_id")
+	resp, err := movieDBRequest("/find/"+string(id), v)
 	if err != nil {
 		return Result{}, err
 	}
 	defer resp.Body.Close()
 
-	r := &omdbResult{}
-	if err := json.NewDecoder(resp.Body).Decode(r); err != nil {
+	data := movieDBData{}
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		return Result{}, fmt.Errorf("omdb Get: Failed to decode: %s", err)
 	}
 	if Debug {
-		log.Printf("Fetch IMDB entry %s -> %s", id, r)
+		log.Printf("Fetch IMDB entry %s -> %+v", id, data)
 	}
-	if r.Error != "" {
-		return Result{}, fmt.Errorf("omdb Error: %s: %s", id, r.Error)
+	if resp.StatusCode != http.StatusOK {
+		return Result{}, fmt.Errorf("movieDB error: %s: %s", id, data.StatusMessage)
 	}
 	//dont allow episode respose, return series instead
-	if r.Type == "episode" {
-		return imdbGet(imdbID(r.SeriesID))
+	// if r.Type == "episode" {
+	// 	return imdbGet(imdbID(r.SeriesID))
+	// }
+	r := Result{}
+	for _, movie := range data.MovieResults {
+		return movie.toResult()
 	}
-	m := getYear.FindStringSubmatch(r.Year)
-	if len(m) == 0 {
-		return Result{}, fmt.Errorf("omdb Get: No year: %+v", r)
+	for _, series := range data.TVResults {
+		return series.toResult()
 	}
-	r.Result.Year = m[1]
-	return r.Result, nil
+	return r, fmt.Errorf("movieDB error: no match for %s", id)
 }
