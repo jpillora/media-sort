@@ -27,6 +27,7 @@ type Config struct {
 	Extensions        string        `help:"types of files that should be sorted"`
 	Concurrency       int           `help:"search concurrency [warning] setting this too high can cause rate-limiting errors"`
 	FileLimit         int           `help:"maximum number of files to search"`
+	AccuracyThreshold int           `help:"filename match accuracy threshold" default:"is 95, perfect match is 100"`
 	MinFileSize       sizestr.Bytes `help:"minimum file size"`
 	Recursive         bool          `help:"also search through subdirectories"`
 	DryRun            bool          `help:"perform sort but don't actually move any files"`
@@ -237,7 +238,7 @@ func (fs *fsSort) add(path string, info os.FileInfo) error {
 }
 
 func (fs *fsSort) sortFile(file *fileSort) error {
-	result, err := Sort(file.path)
+	result, err := SortThreshold(file.path, fs.AccuracyThreshold)
 	if err != nil {
 		return err
 	}

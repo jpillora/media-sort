@@ -12,7 +12,11 @@ import (
 )
 
 func Sort(path string) (*Result, error) {
-	return runPathSort(path)
+	return SortThreshold(path, 95)
+}
+
+func SortThreshold(path string, threshold int) (*Result, error) {
+	return runPathSort(path, threshold)
 }
 
 type Result struct {
@@ -23,6 +27,7 @@ type Result struct {
 	Season, Episode, ExtraEpisode int
 	EpisodeDate                   string //weekly series
 	Year                          string
+	Accuracy                      int
 }
 
 var (
@@ -70,7 +75,7 @@ func (result *Result) PrettyPath(config PathConfig) (string, error) {
 	return prettyPath, nil
 }
 
-func runPathSort(path string) (*Result, error) {
+func runPathSort(path string, threshold int) (*Result, error) {
 	if sample.MatchString(strings.ToLower(path)) {
 		return nil, fmt.Errorf("Skipped sample media")
 	}
@@ -146,7 +151,7 @@ func runPathSort(path string) (*Result, error) {
 	//trim spaces
 	result.Query = strings.TrimSpace(query)
 	//search for normalized name
-	searchResult, err := mediasearch.Search(result.Query, result.Year, result.MType)
+	searchResult, err := mediasearch.SearchThreshold(result.Query, result.Year, result.MType, threshold)
 	if err != nil {
 		return nil, err //search failed
 	}
@@ -157,5 +162,6 @@ func runPathSort(path string) (*Result, error) {
 	}
 	result.Year = searchResult.Year
 	result.MType = string(searchResult.Type)
+	result.Accuracy = searchResult.Accuracy
 	return result, nil
 }

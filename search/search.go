@@ -26,6 +26,11 @@ var inflight = map[string]*sync.WaitGroup{}
 
 //Search for IMDB data (query is required, year and media type are optional)
 func Search(query, year, mediatype string) (Result, error) {
+	return SearchThreshold(query, year, mediatype, DefaultThreshold)
+}
+
+//SearchThreshold for IMDB data with a specific match threshoold
+func SearchThreshold(query, year, mediatype string, threshold int) (Result, error) {
 	if year != "" && !onlyYear.MatchString(year) {
 		return Result{}, fmt.Errorf("Invalid year (%s)", year)
 	}
@@ -90,7 +95,7 @@ func Search(query, year, mediatype string) (Result, error) {
 	}
 
 	//matcher picks result (r)
-	m := matcher{query: query, year: year}
+	m := matcher{query: query, year: year, threshold: threshold}
 	otherTypes := []Result{}
 	for _, result := range results {
 		//only consider tv/movies

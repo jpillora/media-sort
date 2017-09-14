@@ -35,10 +35,10 @@ func searchTVMaze(query, year string, mediatype MediaType) ([]Result, error) {
 			continue //skip no year
 		}
 		rs = append(rs, Result{
-			Title:   tvMazeResult.Show.Name,
-			Year:    m[1],
-			Type:    Series,
-			strdist: dist(query, tvMazeResult.Show.Name),
+			Title:    tvMazeResult.Show.Name,
+			Year:     m[1],
+			Type:     Series,
+			Accuracy: accuracy(query, tvMazeResult.Show.Name),
 		})
 	}
 	return rs, nil

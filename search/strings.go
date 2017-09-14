@@ -20,8 +20,8 @@ var year = regexp.MustCompile(`^(.+?\b)` + yearstr + `\b`)
 var joinedepiseason = regexp.MustCompile(`^(.+?\b)(\d)(\d{2})\b`)
 var partnum = regexp.MustCompile(`^(.+?\b)(\d{1,2})\b`)
 
-//TODO var romannumerals...
-
+// Normalize strings to become search terms
+// TODO var romannumerals...
 func Normalize(s string) string {
 	s = strings.ToLower(s)
 	s = nonalpha.ReplaceAllString(s, " ")
@@ -38,11 +38,14 @@ func abs(n int) int {
 	return n
 }
 
+func accuracy(a, b string) int {
+	return 100 - dist(a, b)
+}
+
 func dist(a, b string) int {
 	a = Normalize(a)
 	b = Normalize(b)
-	d := levenshtein.ComputeDistance(a, b) //this never actually returns an error
-	return d
+	return levenshtein.ComputeDistance(a, b)
 }
 
 func isNear(a, b string) bool {
