@@ -3,7 +3,6 @@ package mediasearch
 import (
 	"fmt"
 	"log"
-	"sort"
 )
 
 // DefaultThreshold for matching names. 100 is a perfect match.
@@ -35,11 +34,11 @@ func (m *matcher) bestMatch() (Result, error) {
 	if len(m.resultSlice) == 0 {
 		return Result{}, fmt.Errorf("No results")
 	}
-	sort.Sort(m)
+	//sort.Sort(m)
 	if debugMode {
 		log.Println("Matched results:")
 		for i, r := range m.resultSlice {
-			log.Printf("#%d: %s", i, r)
+			log.Printf("#%d: %s (%v)", i, r, r.Accuracy)
 		}
 	}
 	r := m.resultSlice[0]
