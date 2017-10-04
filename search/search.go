@@ -8,7 +8,7 @@ import (
 	"github.com/fatih/color"
 )
 
-const debugMode = false
+const debugMode = true
 
 //search function interface
 type search func(string, string, MediaType) ([]Result, error)
