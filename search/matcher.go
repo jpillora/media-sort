@@ -39,7 +39,7 @@ func (m *matcher) bestMatch() (Result, error) {
 	if debugMode {
 		log.Println("Matched results:")
 		for i, r := range m.resultSlice {
-			log.Printf("#%d: %s", i, r)
+			log.Printf("#%d: %s (acc: %d)", i, r, r.Accuracy)
 		}
 	}
 	r := m.resultSlice[0]
@@ -56,7 +56,7 @@ func (m *matcher) Swap(i, j int) {
 func (m *matcher) Less(i, j int) bool {
 	//sort by string dist
 	if m.resultSlice[i].Accuracy != m.resultSlice[j].Accuracy {
-		return m.resultSlice[i].Accuracy < m.resultSlice[j].Accuracy
+		return m.resultSlice[i].Accuracy > m.resultSlice[j].Accuracy
 	}
 	//specific year
 	if m.year != "" {
