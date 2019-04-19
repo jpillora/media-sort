@@ -19,7 +19,7 @@ var (
 	extRe           = regexp.MustCompile(`\.\w+$`)
 	apost           = regexp.MustCompile(`'`)
 	colon           = regexp.MustCompile(`:`)
-	invalidChars    = regexp.MustCompile(`[^a-zA-Z0-9\_\-\.\ \(\)]`)
+	invalidChars    = regexp.MustCompile(`[^a-zA-Z0-9\_\-\.\ \(\)\/\\]`)
 	doubleDash      = regexp.MustCompile(`-(\s*-\s*)+ `)
 	doubleSpace     = regexp.MustCompile(`\s+`)
 )
