@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/jpillora/media-sort/search"
+	mediasearch "github.com/jpillora/media-sort/search"
 	"github.com/jpillora/sizestr"
 
 	"gopkg.in/fsnotify.v1"
@@ -167,7 +167,7 @@ func (fs *fsSort) watch() error {
 	if err != nil {
 		return fmt.Errorf("Failed to create file watcher: %s", err)
 	}
-	for dir, _ := range fs.dirs {
+	for dir := range fs.dirs {
 		if err := watcher.Add(dir); err != nil {
 			return fmt.Errorf("Failed to watch directory: %s", err)
 		}
