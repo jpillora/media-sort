@@ -1,6 +1,6 @@
 # media-sort
 
-[![GoDoc](https://godoc.org/github.com/jpillora/media-sort?status.svg)](https://godoc.org/github.com/jpillora/media-sort)
+[![GoDoc](https://godoc.org/github.com/jpillora/media-sort?status.svg)](https://godoc.org/github.com/jpillora/media-sort) [![CI](https://github.com/jpillora/media-sort/workflows/CI/badge.svg)](https://github.com/jpillora/media-sort/actions?workflow=CI)
 
 A command-line tool and Go (golang) library which categorizes provided files and directories by moving them into to a structured directory tree, using various live sources.
 
