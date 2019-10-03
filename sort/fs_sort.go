@@ -20,23 +20,23 @@ import (
 
 //Config is a sorter configuration
 type Config struct {
-	Targets           []string `type:"args" min:"1"`
-	TVDir             string   `help:"tv series base directory (defaults to current directory)"`
-	MovieDir          string   `help:"movie base directory (defaults to current directory)"`
-	PathConfig        `type:"embedded"`
-	Extensions        string        `help:"types of files that should be sorted"`
-	Concurrency       int           `help:"search concurrency [warning] setting this too high can cause rate-limiting errors"`
-	FileLimit         int           `help:"maximum number of files to search"`
-	AccuracyThreshold int           `help:"filename match accuracy threshold" default:"is 95, perfect match is 100"`
-	MinFileSize       sizestr.Bytes `help:"minimum file size"`
-	Recursive         bool          `help:"also search through subdirectories"`
-	DryRun            bool          `help:"perform sort but don't actually move any files"`
-	SkipHidden        bool          `help:"skip dot files"`
-	Overwrite         bool          `help:"overwrites duplicates"`
-	OverwriteIfLarger bool          `help:"overwrites duplicates if the new file is larger"`
-	Watch             bool          `help:"watch the specified directories for changes and re-sort on change"`
-	WatchDelay        time.Duration `help:"delay before next sort after a change"`
-	Verbose           bool          `help:"verbose logs"`
+	Targets           []string `opts:"mode=arg,min=1"`
+	TVDir             string   `opts:"help=tv series base directory (defaults to current directory)"`
+	MovieDir          string   `opts:"help=movie base directory (defaults to current directory)"`
+	PathConfig        `mode:"embedded"`
+	Extensions        string        `opts:"help=types of files that should be sorted"`
+	Concurrency       int           `opts:"help=search concurrency [warning] setting this too high can cause rate-limiting errors"`
+	FileLimit         int           `opts:"help=maximum number of files to search"`
+	AccuracyThreshold int           `opts:"help=filename match accuracy threshold" default:"is 95, perfect match is 100"`
+	MinFileSize       sizestr.Bytes `opts:"help=minimum file size"`
+	Recursive         bool          `opts:"help=also search through subdirectories"`
+	DryRun            bool          `opts:"help=perform sort but don't actually move any files"`
+	SkipHidden        bool          `opts:"help=skip dot files"`
+	Overwrite         bool          `opts:"help=overwrites duplicates"`
+	OverwriteIfLarger bool          `opts:"help=overwrites duplicates if the new file is larger"`
+	Watch             bool          `opts:"help=watch the specified directories for changes and re-sort on change"`
+	WatchDelay        time.Duration `opts:"help=delay before next sort after a change"`
+	Verbose           bool          `opts:"help=verbose logs"`
 }
 
 //fsSort is a media sorter

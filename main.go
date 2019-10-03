@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/jpillora/media-sort/sort"
+	mediasort "github.com/jpillora/media-sort/sort"
 	"github.com/jpillora/opts"
 	"github.com/jpillora/sizestr"
 )
@@ -47,7 +47,7 @@ func main() {
 		Name("media-sort").
 		Repo("github.com/jpillora/media-sort").
 		DocAfter("usage", "info", info).
-		DocAfter("options", "pathtemplates", pathTemplates).
+		DocBefore("version", "pathtemplates", pathTemplates).
 		Version(VERSION).
 		Parse()
 
