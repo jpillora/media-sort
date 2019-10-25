@@ -32,6 +32,7 @@ type Config struct {
 	Recursive         bool          `opts:"help=also search through subdirectories"`
 	DryRun            bool          `opts:"help=perform sort but don't actually move any files"`
 	SkipHidden        bool          `opts:"help=skip dot files"`
+	Hardlink          bool          `opts:"help=hardlink files to the new location instead of moving"`
 	Overwrite         bool          `opts:"help=overwrites duplicates"`
 	OverwriteIfLarger bool          `opts:"help=overwrites duplicates if the new file is larger"`
 	Watch             bool          `opts:"help=watch the specified directories for changes and re-sort on change"`
@@ -73,6 +74,9 @@ func FileSystemSort(c Config) error {
 	}
 	if c.Overwrite && c.OverwriteIfLarger {
 		return errors.New("Overwrite is already specified, overwrite-if-larger is redundant")
+	}
+	if c.Hardlink && c.Overwrite {
+		return errors.New("Hardlink is already specified, Overwrite won't do anything")
 	}
 	//init fs sort
 	fs := &fsSort{
@@ -270,7 +274,7 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 	// log.Printf("SUCCESS = D%d #%d\n  %s\n  %s", r.Distance, len(query), query, r.Title)
 	log.Printf("[#%d/%d] %s\n  └─> %s", file.id, len(fs.sorts), color.GreenString(result.Path)+subsExt, color.GreenString(newPath)+subsExt)
 	if fs.DryRun {
-		return nil //dont actually move
+		return nil //don't actually move
 	}
 	if result.Path == newPath {
 		return nil //already sorted
@@ -280,24 +284,39 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 	if newInfo, err := os.Stat(newPath); err == nil {
 		fileIsLarger := file.info.Size() > newInfo.Size()
 		overwrite := fs.Overwrite || (fs.OverwriteIfLarger && fileIsLarger)
-		if !overwrite {
-			return fmt.Errorf("File already exists '%s' (try setting --overwrite)", newPath)
+		//check if it the same file
+		if !os.SameFile(file.info, newInfo) {
+			if !overwrite {
+				return fmt.Errorf("File already exists '%s' (try setting --overwrite)", newPath)
+			}
+		} else {
+			return nil // File are the same
 		}
 	}
+
 	//mkdir -p
 	err = os.MkdirAll(filepath.Dir(newPath), 0755)
 	if err != nil {
 		return err //failed to mkdir
 	}
-	//mv
-	err = os.Rename(result.Path, newPath)
+	//mv or hardlink
+	err = nil
+	if fs.Hardlink {
+		err = os.Link(result.Path, newPath)
+	} else {
+		err = os.Rename(result.Path, newPath)
+	}
 	if err != nil {
 		return err //failed to move
 	}
 	//if .srt file exists for the file, mv it too
 	if hasSubs {
 		newPathSubs := strings.TrimSuffix(newPath, filepath.Ext(newPath)) + ".srt"
-		os.Rename(pathSubs, newPathSubs) //best-effort
+		if fs.Hardlink {
+			err = os.Link(pathSubs, newPathSubs) //best-effort
+		} else {
+			err = os.Rename(pathSubs, newPathSubs) //best-effort
+		}
 	}
 	return nil
 }

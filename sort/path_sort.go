@@ -101,7 +101,7 @@ func runPathSort(path string, threshold int) (*Result, error) {
 			result.EpisodeDate = strings.Replace(m[2], " ", "-", 2)
 		}
 	}
-	//extract double episde season numbers
+	//extract double episode season numbers
 	if result.MType == "" {
 		m := doubleepiseason.FindStringSubmatch(query)
 		if len(m) > 0 {
@@ -112,7 +112,7 @@ func runPathSort(path string, threshold int) (*Result, error) {
 			result.ExtraEpisode, _ = strconv.Atoi(m[6])
 		}
 	}
-	//extract episde season numbers
+	//extract episode season numbers
 	if result.MType == "" {
 		m := episeason.FindStringSubmatch(query)
 		if len(m) > 0 {
@@ -122,7 +122,7 @@ func runPathSort(path string, threshold int) (*Result, error) {
 			result.Episode, _ = strconv.Atoi(m[6])
 		}
 	}
-	//extract *joined* episde season numbers
+	//extract *joined* episode season numbers
 	if result.MType == "" {
 		m := joinedepiseason.FindStringSubmatch(query)
 		if len(m) > 0 {
