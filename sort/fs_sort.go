@@ -232,6 +232,10 @@ func (fs *fsSort) add(path string, info os.FileInfo) error {
 		if !fs.Recursive {
 			return errors.New("Recursive mode (-r) is required to sort directories")
 		}
+		if path == fs.TVDir || path == fs.MovieDir {
+			fs.verbf("skip output directory: %s", path)
+			return nil
+		}
 		//note directory
 		fs.dirs[path] = true
 		//add all files in dir
