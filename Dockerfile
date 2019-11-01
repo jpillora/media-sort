@@ -1,4 +1,4 @@
-FROM golang:1.12
+FROM golang:1.12 as build
 
 WORKDIR /app
 
@@ -11,6 +11,10 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o main
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' .
 
-ENTRYPOINT ["/app/media-sort"]
+FROM scratch as run
+
+COPY --from=build /app/media-sort /media-sort
+
+ENTRYPOINT ["/media-sort"]
