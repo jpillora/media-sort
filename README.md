@@ -32,7 +32,7 @@ $ curl https://i.jpillora.com/media-sort | bash
 Downloading media-sort...
 Latest version is 2.X.X
 ######################################### 100.0%
-$ ./media-sort --dryrun --recursive .
+$ ./media-sort --dry-run --recursive .
 ```
 
 Optionally move into `$PATH`
