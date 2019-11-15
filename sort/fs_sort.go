@@ -20,25 +20,26 @@ import (
 
 //Config is a sorter configuration
 type Config struct {
-	Targets           []string `opts:"mode=arg,min=1"`
-	TVDir             string   `opts:"help=tv series base directory (defaults to current directory)"`
-	MovieDir          string   `opts:"help=movie base directory (defaults to current directory)"`
-	PathConfig        `mode:"embedded"`
-	Extensions        string        `opts:"help=types of files that should be sorted"`
-	Concurrency       int           `opts:"help=search concurrency [warning] setting this too high can cause rate-limiting errors"`
-	FileLimit         int           `opts:"help=maximum number of files to search"`
-	AccuracyThreshold int           `opts:"help=filename match accuracy threshold" default:"is 95, perfect match is 100"`
-	MinFileSize       sizestr.Bytes `opts:"help=minimum file size"`
-	Recursive         bool          `opts:"help=also search through subdirectories"`
-	DryRun            bool          `opts:"help=perform sort but don't actually move any files"`
-	SkipHidden        bool          `opts:"help=skip dot files"`
-	Hardlink          bool          `opts:"help=hardlink files to the new location instead of moving"`
-	Overwrite         bool          `opts:"help=overwrites duplicates"`
-	OverwriteIfLarger bool          `opts:"help=overwrites duplicates if the new file is larger"`
-	Watch             bool          `opts:"help=watch the specified directories for changes and re-sort on change"`
-	WatchOnlyTopDir   bool          `opts:"help=watch only the directories specified in the command line"`
-	WatchDelay        time.Duration `opts:"help=delay before next sort after a change"`
-	Verbose           bool          `opts:"help=verbose logs"`
+	Targets             []string `opts:"mode=arg,min=1"`
+	TVDir               string   `opts:"help=tv series base directory (defaults to current directory)"`
+	MovieDir            string   `opts:"help=movie base directory (defaults to current directory)"`
+	PathConfig          `mode:"embedded"`
+	DirModificationTime string   `opts:"help=set the modification time after copying a file in the directory time is in the form 2006-Jan-02"`
+	Extensions          string        `opts:"help=types of files that should be sorted"`
+	Concurrency         int           `opts:"help=search concurrency [warning] setting this too high can cause rate-limiting errors"`
+	FileLimit           int           `opts:"help=maximum number of files to search"`
+	AccuracyThreshold   int           `opts:"help=filename match accuracy threshold" default:"is 95, perfect match is 100"`
+	MinFileSize         sizestr.Bytes `opts:"help=minimum file size"`
+	Recursive           bool          `opts:"help=also search through subdirectories"`
+	DryRun              bool          `opts:"help=perform sort but don't actually move any files"`
+	SkipHidden          bool          `opts:"help=skip dot files"`
+	Hardlink            bool          `opts:"help=hardlink files to the new location instead of moving"`
+	Overwrite           bool          `opts:"help=overwrites duplicates"`
+	OverwriteIfLarger   bool          `opts:"help=overwrites duplicates if the new file is larger"`
+	Watch               bool          `opts:"help=watch the specified directories for changes and re-sort on change"`
+	WatchOnlyTopDir     bool          `opts:"help=watch only the directories specified in the command line"`
+	WatchDelay          time.Duration `opts:"help=delay before next sort after a change"`
+	Verbose             bool          `opts:"help=verbose logs"`
 }
 
 //fsSort is a media sorter
@@ -331,6 +332,18 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 			err = os.Link(pathSubs, newPathSubs) //best-effort
 		} else {
 			err = os.Rename(pathSubs, newPathSubs) //best-effort
+		}
+	}
+	if fs.DirModificationTime != "" {
+		currentTime := time.Now().Local()
+		const paramTimeFormat = "2006-Jan-02"
+		mtime, err := time.Parse(paramTimeFormat, fs.DirModificationTime)
+		if err != nil {
+			return err
+		}
+		err = os.Chtimes(baseDir, currentTime, mtime)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
