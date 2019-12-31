@@ -9,7 +9,7 @@ import (
 	"github.com/jpillora/sizestr"
 )
 
-var VERSION string = "0.0.0-src" //set via ldflags
+var version = "0.0.0-src" //set via ldflags
 
 const (
 	info = `
@@ -48,7 +48,7 @@ func main() {
 		Repo("github.com/jpillora/media-sort").
 		DocAfter("usage", "info", info).
 		DocBefore("version", "pathtemplates", pathTemplates).
-		Version(VERSION).
+		Version(version).
 		Parse()
 
 	if err := mediasort.FileSystemSort(c); err != nil {
