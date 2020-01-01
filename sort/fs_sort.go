@@ -300,23 +300,14 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 		return err //failed to mkdir
 	}
 	//mv or hardlink
-	err = nil
-	if fs.Hardlink {
-		err = os.Link(result.Path, newPath)
-	} else {
-		err = os.Rename(result.Path, newPath)
-	}
+	err = move(fs.Hardlink, result.Path, newPath)
 	if err != nil {
 		return err //failed to move
 	}
 	//if .srt file exists for the file, mv it too
 	if hasSubs {
 		newPathSubs := strings.TrimSuffix(newPath, filepath.Ext(newPath)) + ".srt"
-		if fs.Hardlink {
-			err = os.Link(pathSubs, newPathSubs) //best-effort
-		} else {
-			err = os.Rename(pathSubs, newPathSubs) //best-effort
-		}
+		move(fs.Hardlink, pathSubs, newPathSubs) //best-effort
 	}
 	return nil
 }
@@ -325,4 +316,17 @@ func (fs *fsSort) verbf(f string, args ...interface{}) {
 	if fs.Verbose {
 		log.Printf(f, args...)
 	}
+}
+
+func move(hard bool, src, dst string) (err error) {
+	if hard {
+		err = os.Link(src, dst)
+	} else {
+		err = os.Rename(src, dst)
+		//cross-device? shell out to mv
+		if err != nil && strings.Contains(err.Error(), "cross-device") && canSysMove() {
+			err = sysMove(src, dst)
+		}
+	}
+	return
 }
