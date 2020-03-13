@@ -8,9 +8,10 @@ import (
 )
 
 var nonalpha = regexp.MustCompile(`[^a-z0-9]`)
-var yearstr = `(19\d\d|20[0,1]\d)`
+var yearstr = `(19\d\d|20\d\d)`
 var onlyYear = regexp.MustCompile(`^` + yearstr + `$`)
 var getYear = regexp.MustCompile(`\b` + yearstr + `\b`)
+var getDate = regexp.MustCompile(`\b` + yearstr + `-(\d\d)-(\d\d)\b`)
 var sample = regexp.MustCompile(`\bsample\b`)
 var encodings = regexp.MustCompile(`\b(720p|1080p|hdtv|x264|dts|bluray)\b.*`) //strip all junk
 var spaces = regexp.MustCompile(`\s+`)
@@ -21,7 +22,6 @@ var joinedepiseason = regexp.MustCompile(`^(.+?\b)(\d)(\d{2})\b`)
 var partnum = regexp.MustCompile(`^(.+?\b)(\d{1,2})\b`)
 
 // Normalize strings to become search terms
-// TODO var romannumerals...
 func Normalize(s string) string {
 	s = strings.ToLower(s)
 	s = nonalpha.ReplaceAllString(s, " ")
@@ -52,5 +52,3 @@ func isNear(a, b string) bool {
 	lendiff := abs(len(a) - len(b))
 	return dist(a, b)-lendiff <= 5
 }
-
-// return nil, fmt.Errorf("Failed to match '%s' (closest result was '%s')", ps.name, r.Title)

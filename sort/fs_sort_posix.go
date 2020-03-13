@@ -7,9 +7,7 @@ import (
 	"os/exec"
 )
 
-func canSysMove() bool {
-	return true
-}
+const canSysMove = true
 
 func sysMove(src, dst string) error {
 	out, err := exec.Command("mv", src, dst).CombinedOutput()

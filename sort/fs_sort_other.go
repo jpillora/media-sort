@@ -4,9 +4,7 @@ package mediasort
 
 import "errors"
 
-func canSysMove() bool {
-	return false
-}
+const canSysMove = false
 
 func sysMove(src, dst string) error {
 	return errors.New("system move unsupported")

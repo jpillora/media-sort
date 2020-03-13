@@ -260,7 +260,6 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 		return fmt.Errorf("Invalid result type: %s", result.MType)
 	}
 	newPath = filepath.Join(baseDir, newPath)
-
 	//check for subs.srt file
 	pathSubs := strings.TrimSuffix(result.Path, filepath.Ext(result.Path)) + ".srt"
 	_, err = os.Stat(pathSubs)
@@ -269,9 +268,7 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 	if hasSubs {
 		subsExt = "," + color.GreenString("srt")
 	}
-
-	//DEBUG
-	// log.Printf("SUCCESS = D%d #%d\n  %s\n  %s", r.Distance, len(query), query, r.Title)
+	//found sort path
 	log.Printf("[#%d/%d] %s\n  └─> %s", file.id, len(fs.sorts), color.GreenString(result.Path)+subsExt, color.GreenString(newPath)+subsExt)
 	if fs.DryRun {
 		return nil //don't actually move
@@ -279,7 +276,6 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 	if result.Path == newPath {
 		return nil //already sorted
 	}
-
 	//check already exists
 	if newInfo, err := os.Stat(newPath); err == nil {
 		fileIsLarger := file.info.Size() > newInfo.Size()
@@ -324,7 +320,7 @@ func move(hard bool, src, dst string) (err error) {
 	} else {
 		err = os.Rename(src, dst)
 		//cross-device? shell out to mv
-		if err != nil && strings.Contains(err.Error(), "cross-device") && canSysMove() {
+		if err != nil && strings.Contains(err.Error(), "cross-device") && canSysMove {
 			err = sysMove(src, dst)
 		}
 	}

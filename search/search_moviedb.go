@@ -81,7 +81,7 @@ func (mr movieDBResult) toResult() (Result, error) {
 		if len(m) == 0 {
 			return r, fmt.Errorf("movieDB error: No movie year: %s", mr.ReleaseDate)
 		}
-		r.Year = m[0]
+		r.Year = m[1]
 		return r, nil
 	} else if mr.Name != "" && mr.FirstAirDate != "" {
 		r.Type = Series
@@ -90,7 +90,7 @@ func (mr movieDBResult) toResult() (Result, error) {
 		if len(m) == 0 {
 			return Result{}, fmt.Errorf("movieDB error: No series year: %s", mr.FirstAirDate)
 		}
-		r.Year = m[0]
+		r.Year = m[1]
 		return r, nil
 	}
 	return r, fmt.Errorf("movieDB error: Unknown result: %+v", mr)

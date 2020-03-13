@@ -11,7 +11,7 @@ import (
 type imdbID string
 
 //imdbGet uses movie DB because it accepts IMDB IDs
-func imdbGet(id imdbID) (Result, error) {
+func imdbGet(id imdbID, mediatype MediaType) (Result, error) {
 	v := url.Values{}
 	v.Set("external_source", "imdb_id")
 	resp, err := movieDBRequest("/find/"+string(id), v)
@@ -30,16 +30,15 @@ func imdbGet(id imdbID) (Result, error) {
 	if resp.StatusCode != http.StatusOK {
 		return Result{}, fmt.Errorf("movieDB error: %s: %s", id, data.StatusMessage)
 	}
-	//dont allow episode respose, return series instead
-	// if r.Type == "episode" {
-	// 	return imdbGet(imdbID(r.SeriesID))
-	// }
-	r := Result{}
-	for _, movie := range data.MovieResults {
-		return movie.toResult()
+	//pick first result
+	if mediatype == Series {
+		for _, series := range data.TVResults {
+			return series.toResult()
+		}
+	} else if mediatype == Movie {
+		for _, movie := range data.MovieResults {
+			return movie.toResult()
+		}
 	}
-	for _, series := range data.TVResults {
-		return series.toResult()
-	}
-	return r, fmt.Errorf("movieDB error: no match for %s", id)
+	return Result{}, fmt.Errorf("movieDB error: no match for %s", id)
 }
