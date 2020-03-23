@@ -33,7 +33,7 @@ func searchMovieDB(query, year string, mediatype MediaType) ([]Result, error) {
 
 	s := &movieDBSearch{}
 	if err := json.NewDecoder(resp.Body).Decode(s); err != nil {
-		return nil, fmt.Errorf("omdb Search: Failed to decode: %s", err)
+		return nil, fmt.Errorf("movieDB search: Failed to decode: %s", err)
 	}
 	results := make([]Result, len(s.Results))
 	for i, mr := range s.Results {

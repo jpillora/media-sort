@@ -4,7 +4,7 @@ import "regexp"
 
 //NOTE strings have been mediasearch.Normalized before these regexps run over them
 var (
-	yearstr         = `(19\d\d|20[0,1]\d)`
+	yearstr         = `(19\d\d|20\d\d)`
 	sample          = regexp.MustCompile(`\bsample\b`)
 	encodings       = regexp.MustCompile(`\b(720p|1080p|hdtv|x264|dts|bluray)\b.*`) //strip all junk
 	nonalpha        = regexp.MustCompile(`[^A-Za-z0-9]`)

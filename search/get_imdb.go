@@ -2,6 +2,7 @@ package mediasearch
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,7 +11,7 @@ import (
 
 type imdbID string
 
-//imdbGet uses movie DB because it accepts IMDB IDs
+//imdbGet uses movieDB because it accepts IMDB IDs
 func imdbGet(id imdbID, mediatype MediaType) (Result, error) {
 	v := url.Values{}
 	v.Set("external_source", "imdb_id")
@@ -22,7 +23,7 @@ func imdbGet(id imdbID, mediatype MediaType) (Result, error) {
 
 	data := movieDBData{}
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return Result{}, fmt.Errorf("omdb Get: Failed to decode: %s", err)
+		return Result{}, fmt.Errorf("movieDB get: Failed to decode: %s", err)
 	}
 	if debugMode {
 		log.Printf("Fetch IMDB entry %s -> %+v", id, data)
@@ -35,10 +36,13 @@ func imdbGet(id imdbID, mediatype MediaType) (Result, error) {
 		for _, series := range data.TVResults {
 			return series.toResult()
 		}
-	} else if mediatype == Movie {
+		return Result{}, fmt.Errorf("movieDB error: no match for %s (in %d)", id, len(data.TVResults))
+	}
+	if mediatype == Movie {
 		for _, movie := range data.MovieResults {
 			return movie.toResult()
 		}
+		return Result{}, fmt.Errorf("movieDB error: no match for %s (in %d)", id, len(data.MovieResults))
 	}
-	return Result{}, fmt.Errorf("movieDB error: no match for %s", id)
+	return Result{}, errors.New("invalid media type")
 }
