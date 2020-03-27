@@ -2,7 +2,6 @@ package mediasearch
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -32,17 +31,15 @@ func imdbGet(id imdbID, mediatype MediaType) (Result, error) {
 		return Result{}, fmt.Errorf("movieDB error: %s: %s", id, data.StatusMessage)
 	}
 	//pick first result
-	if mediatype == Series {
+	if mediatype == Series || mediatype == "" {
 		for _, series := range data.TVResults {
 			return series.toResult()
 		}
-		return Result{}, fmt.Errorf("movieDB error: no match for %s (in %d)", id, len(data.TVResults))
 	}
-	if mediatype == Movie {
+	if mediatype == Movie || mediatype == "" {
 		for _, movie := range data.MovieResults {
 			return movie.toResult()
 		}
-		return Result{}, fmt.Errorf("movieDB error: no match for %s (in %d)", id, len(data.MovieResults))
 	}
-	return Result{}, errors.New("invalid media type")
+	return Result{}, fmt.Errorf("movieDB error: no match for %s (in %d)", id, len(data.MovieResults)+len(data.TVResults))
 }
