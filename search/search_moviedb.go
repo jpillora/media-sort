@@ -74,9 +74,9 @@ type movieDBResult struct {
 
 func (mr movieDBResult) toResult() (Result, error) {
 	r := Result{}
-	if mr.Title != "" && mr.ReleaseDate != "" {
+	if mr.OriginalTitle != "" && mr.ReleaseDate != "" {
 		r.Type = Movie
-		r.Title = mr.Title
+		r.Title = mr.OriginalTitle
 		m := getYear.FindStringSubmatch(mr.ReleaseDate)
 		if len(m) == 0 {
 			return r, fmt.Errorf("movieDB error: No movie year: %s", mr.ReleaseDate)
