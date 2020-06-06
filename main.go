@@ -40,7 +40,8 @@ func main() {
 		FileLimit:         1000,
 		MinFileSize:       sizestr.Bytes(sizestr.MustParse("25MB")),
 		WatchDelay:        3 * time.Second,
-		AccuracyThreshold: 95, //100 is perfect match
+		AccuracyThreshold: 95, //100 is perfect match,
+		Action:            "move",
 	}
 
 	opts.New(&c).
