@@ -350,6 +350,5 @@ func (fs *fsSort) action(src, dst string) (err error) {
 	case linkAction:
 		err = link(src, dst, fs.linkType)
 	}
-
-	return
+	return errors.New("unknown action")
 }
