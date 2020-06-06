@@ -34,7 +34,7 @@ type Config struct {
 	SkipHidden        bool          `opts:"help=skip dot files"`
 	Action            Action        `opts:"help=how to tread the files (available <copy|link|move>)"`
 	SymLink           bool          `opts:"help=use symlinks instead of hardlinks when linking the new files"`
-	HardLink          bool          `opts:"help=use links instead of copying when treating the new files (deprecated, used for compatibility)"`
+	HardLink          bool          `opts:"help=use links instead of copying when treating the new files (deprecated, overwrite the --action flag)"`
 	Overwrite         bool          `opts:"help=overwrites duplicates"`
 	OverwriteIfLarger bool          `opts:"help=overwrites duplicates if the new file is larger"`
 	Watch             bool          `opts:"help=watch the specified directories for changes and re-sort on change"`
@@ -99,6 +99,9 @@ func FileSystemSort(c Config) error {
 	}
 	if c.Action == LinkAction && c.Overwrite {
 		return errors.New("Link is already specified, Overwrite won't do anything")
+	}
+	if c.HardLink {
+		c.Action = LinkAction
 	}
 	switch c.Action {
 	case MoveAction, LinkAction, CopyAction:
