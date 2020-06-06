@@ -32,8 +32,9 @@ type Config struct {
 	Recursive         bool          `opts:"help=also search through subdirectories"`
 	DryRun            bool          `opts:"help=perform sort but don't actually move any files"`
 	SkipHidden        bool          `opts:"help=skip dot files"`
-	Action            action        `opts:"help=how to tread the files (available <copy|link|move>)"`
+	Action            Action        `opts:"help=how to tread the files (available <copy|link|move>)"`
 	SymLink           bool          `opts:"help=use symlinks instead of hardlinks when linking the new files"`
+	HardLink          bool          `opts:"help=use links instead of copying when treating the new files (deprecated, used for compatibility)"`
 	Overwrite         bool          `opts:"help=overwrites duplicates"`
 	OverwriteIfLarger bool          `opts:"help=overwrites duplicates if the new file is larger"`
 	Watch             bool          `opts:"help=watch the specified directories for changes and re-sort on change"`
@@ -61,12 +62,16 @@ type fileSort struct {
 	err    error
 }
 
-type action string
+// Action represent the way to treat the created files
+type Action string
 
 const (
-	moveAction action = "move"
-	linkAction action = "link"
-	copyAction action = "copy"
+	// MoveAction the new files
+	MoveAction Action = "move"
+	// LinkAction the new files
+	LinkAction Action = "link"
+	// CopyAction the new files
+	CopyAction Action = "copy"
 )
 
 type linkType string
@@ -92,11 +97,11 @@ func FileSystemSort(c Config) error {
 	if c.Overwrite && c.OverwriteIfLarger {
 		return errors.New("Overwrite is already specified, overwrite-if-larger is redundant")
 	}
-	if c.Action == linkAction && c.Overwrite {
+	if c.Action == LinkAction && c.Overwrite {
 		return errors.New("Link is already specified, Overwrite won't do anything")
 	}
 	switch c.Action {
-	case moveAction, linkAction, copyAction:
+	case MoveAction, LinkAction, CopyAction:
 		break
 	default:
 		return errors.New("Provided action is not available")
@@ -343,11 +348,11 @@ func (fs *fsSort) verbf(f string, args ...interface{}) {
 
 func (fs *fsSort) action(src, dst string) (err error) {
 	switch fs.Action {
-	case moveAction:
+	case MoveAction:
 		err = move(src, dst)
-	case copyAction:
+	case CopyAction:
 		err = copy(src, dst)
-	case linkAction:
+	case LinkAction:
 		err = link(src, dst, fs.linkType)
 	}
 	return errors.New("unknown action")
