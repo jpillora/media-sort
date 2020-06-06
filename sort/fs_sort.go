@@ -32,7 +32,8 @@ type Config struct {
 	Recursive         bool          `opts:"help=also search through subdirectories"`
 	DryRun            bool          `opts:"help=perform sort but don't actually move any files"`
 	SkipHidden        bool          `opts:"help=skip dot files"`
-	Hardlink          bool          `opts:"help=hardlink files to the new location instead of moving"`
+	Link              bool          `opts:"help=link files to the new location instead of moving (default hardlinks)"`
+	SymLink           bool          `opts:"help=use symlinks instead of hardlinks when linking the new files"`
 	Overwrite         bool          `opts:"help=overwrites duplicates"`
 	OverwriteIfLarger bool          `opts:"help=overwrites duplicates if the new file is larger"`
 	Watch             bool          `opts:"help=watch the specified directories for changes and re-sort on change"`
@@ -49,6 +50,7 @@ type fsSort struct {
 	stats     struct {
 		found, matched, moved int
 	}
+	linkType linkType
 }
 
 type fileSort struct {
@@ -58,6 +60,13 @@ type fileSort struct {
 	result *Result
 	err    error
 }
+
+type linkType string
+
+const (
+	hardLink linkType = "hardLink"
+	symLink  linkType = "symLink"
+)
 
 //FileSystemSort performs a media sort
 //against the file system using the provided
@@ -75,13 +84,17 @@ func FileSystemSort(c Config) error {
 	if c.Overwrite && c.OverwriteIfLarger {
 		return errors.New("Overwrite is already specified, overwrite-if-larger is redundant")
 	}
-	if c.Hardlink && c.Overwrite {
+	if c.Link && c.Overwrite {
 		return errors.New("Hardlink is already specified, Overwrite won't do anything")
 	}
 	//init fs sort
 	fs := &fsSort{
 		Config:    c,
 		validExts: map[string]bool{},
+		linkType:  hardLink,
+	}
+	if c.SymLink {
+		fs.linkType = symLink
 	}
 	for _, e := range strings.Split(c.Extensions, ",") {
 		fs.validExts["."+e] = true
@@ -296,14 +309,14 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 		return err //failed to mkdir
 	}
 	//mv or hardlink
-	err = move(fs.Hardlink, result.Path, newPath)
+	err = move(fs.Link, fs.linkType, result.Path, newPath)
 	if err != nil {
 		return err //failed to move
 	}
 	//if .srt file exists for the file, mv it too
 	if hasSubs {
 		newPathSubs := strings.TrimSuffix(newPath, filepath.Ext(newPath)) + ".srt"
-		move(fs.Hardlink, pathSubs, newPathSubs) //best-effort
+		move(fs.Link, fs.linkType, pathSubs, newPathSubs) //best-effort
 	}
 	return nil
 }
@@ -314,9 +327,14 @@ func (fs *fsSort) verbf(f string, args ...interface{}) {
 	}
 }
 
-func move(hard bool, src, dst string) (err error) {
-	if hard {
-		err = os.Link(src, dst)
+func move(link bool, linkType linkType, src, dst string) (err error) {
+	if link {
+		switch linkType {
+		case hardLink:
+			err = os.Link(src, dst)
+		case symLink:
+			err = os.Symlink(src, dst)
+		}
 	} else {
 		err = os.Rename(src, dst)
 		//cross-device? shell out to mv
