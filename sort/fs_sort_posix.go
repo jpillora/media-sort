@@ -41,7 +41,7 @@ func link(src, dst string, linkType linkType) (err error) {
 	case hardLink:
 		err = os.Link(src, dst)
 	case symLink:
-		err = os.Link(src, dst)
+		err = os.Symlink(src, dst)
 	default:
 		err = errors.New("wrong link type, please open an issue")
 	}
