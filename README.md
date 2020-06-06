@@ -60,36 +60,35 @@ $ media-sort --help
 
 <tmpl,code: go run main.go --help>
 ``` plain
-
-  Usage: media-sort [options] targets...
+  Usage: media-sort [options] <target> [target] ...
 
   media-sort categorizes the provided files and directories (targets) by
   moving them into to a structured directory tree, sorting is currently
-  performed using TVMaze, OMDB and Google.
+  performed using TVMaze, MovieDB and Google.
 
   Options:
-  --tv-dir, -t           tv series base directory (defaults to current
-                         directory)
-  --movie-dir, -m        movie base directory (defaults to current directory)
-  --tv-template          tv series path template
-  --movie-template       movie path template
-  --extensions, -e       types of files that should be sorted (default
-                         mp4,avi,mkv)
-  --concurrency, -c      search concurrency [warning] setting this too high
-                         can cause rate-limiting errors (default 6)
-  --file-limit, -f       maximum number of files to search (default 1000)
-  --min-file-size        minimum file size (default 25MB)
-  --recursive, -r        also search through subdirectories
-  --dry-run, -d          perform sort but don't actually move any files
-  --skip-hidden, -s      skip dot files
-  --overwrite, -o        overwrites duplicates
-  --overwrite-if-larger  overwrites duplicates if the new file is larger
-  --watch, -w            watch the specified directories for changes and
-                         re-sort on change
-  --watch-delay          delay before next sort after a change (default 3s)
-  --verbose, -v          verbose logs
-  --help, -h
-  --version
+  --tv-dir, -t              tv series base directory (defaults to current directory)
+  --movie-dir, -m           movie base directory (defaults to current directory)
+  --tv-template             tv series path template
+  --movie-template          movie path template
+  --extensions, -e          types of files that should be sorted (default mp4,avi,mkv)
+  --concurrency, -c         search concurrency [warning] setting this too high can cause rate-limiting
+                            errors (default 6)
+  --file-limit, -f          maximum number of files to search (default 1000)
+  --accuracy-threshold, -a  filename match accuracy threshold (default 95)
+  --min-file-size           minimum file size (default 25MB)
+  --recursive, -r           also search through subdirectories
+  --dry-run, -d             perform sort but don't actually move any files
+  --skip-hidden, -s         skip dot files
+  --action                  how to tread the files (available <copy|link|move>) (default move)
+  --sym-link                use symlinks instead of hardlinks when linking the new files
+  --overwrite, -o           overwrites duplicates
+  --overwrite-if-larger     overwrites duplicates if the new file is larger
+  --watch, -w               watch the specified directories for changes and re-sort on change
+  --watch-delay             delay before next sort after a change (default 3s)
+  --verbose, -v             verbose logs
+  --version                 display version
+  --help, -h                display help
 
   by default, tv series are moved to:
     ./<title> S<season>E<episode>.<ext>
@@ -109,7 +108,6 @@ $ media-sort --help
 
   Read more:
     github.com/jpillora/media-sort
-
 ```
 </tmpl>
 
