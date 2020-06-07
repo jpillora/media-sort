@@ -28,20 +28,14 @@ $ go get -v github.com/jpillora/media-sort
 ### Quick use
 
 ``` sh
-$ curl https://i.jpillora.com/media-sort | bash
-Downloading media-sort...
-Latest version is 2.X.X
-######################################### 100.0%
-$ ./media-sort --dry-run --recursive .
+
+$ curl https://i.jpillora.com/media-sort! | bash
+Installing jpillora/media-sort v2.4.3.....
+######################################################################## 100.0%##O=#  #
+Installed at /usr/local/bin/media-sort
 ```
 
-Optionally move into `$PATH`
-
-```
-$ mv media-sort /usr/local/bin/
-```
-
-Test run `media-sort`
+Test run `media-sort` (read-only mode)
 
 ```
 $ cd my-media/
@@ -58,8 +52,8 @@ $ media-sort --dry-run --recursive .
 $ media-sort --help
 ```
 
-<tmpl,code: go run main.go --help>
 ``` plain
+
   Usage: media-sort [options] <target> [target] ...
 
   media-sort categorizes the provided files and directories (targets) by
@@ -71,7 +65,7 @@ $ media-sort --help
   --movie-dir, -m           movie base directory (defaults to current directory)
   --tv-template             tv series path template
   --movie-template          movie path template
-  --extensions, -e          types of files that should be sorted (default mp4,avi,mkv)
+  --extensions, -e          types of files that should be sorted (default mp4,avi,mkv,mpeg,mpg,mov,webm)
   --concurrency, -c         search concurrency [warning] setting this too high can cause rate-limiting
                             errors (default 6)
   --file-limit, -f          maximum number of files to search (default 1000)
@@ -80,8 +74,9 @@ $ media-sort --help
   --recursive, -r           also search through subdirectories
   --dry-run, -d             perform sort but don't actually move any files
   --skip-hidden, -s         skip dot files
-  --action                  how to tread the files (available <copy|link|move>) (default move)
-  --hard-link, -h           use hardlinks when treating the new files (overwrites the --action flag)
+  --action                  filesystem action used to sort files (available <copy|link|move>, default
+                            move)
+  --hard-link, -h           use hardlinks instead of symlinks (forces --action link)
   --overwrite, -o           overwrites duplicates
   --overwrite-if-larger     overwrites duplicates if the new file is larger
   --watch, -w               watch the specified directories for changes and re-sort on change
@@ -108,8 +103,8 @@ $ media-sort --help
 
   Read more:
     github.com/jpillora/media-sort
+
 ```
-</tmpl>
 
 #### Programmatic Use
 
@@ -126,7 +121,7 @@ The API has 3 layers:
 
 #### MIT License
 
-Copyright © 2016 Jaime Pillora &lt;dev@jpillora.com&gt;
+Copyright © 2020 Jaime Pillora &lt;dev@jpillora.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
