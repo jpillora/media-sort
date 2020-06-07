@@ -81,14 +81,14 @@ $ media-sort --help
   --dry-run, -d             perform sort but don't actually move any files
   --skip-hidden, -s         skip dot files
   --action                  how to tread the files (available <copy|link|move>) (default move)
-  --sym-link                use symlinks instead of hardlinks when linking the new files
+  --hard-link, -h           use hardlinks when treating the new files (overwrites the --action flag)
   --overwrite, -o           overwrites duplicates
   --overwrite-if-larger     overwrites duplicates if the new file is larger
   --watch, -w               watch the specified directories for changes and re-sort on change
   --watch-delay             delay before next sort after a change (default 3s)
   --verbose, -v             verbose logs
   --version                 display version
-  --help, -h                display help
+  --help                    display help
 
   by default, tv series are moved to:
     ./<title> S<season>E<episode>.<ext>
