@@ -65,6 +65,7 @@ $ media-sort --help
   --movie-dir, -m           movie base directory (defaults to current directory)
   --tv-template             tv series path template
   --movie-template          movie path template
+  --plex, -p                use a Plex-compatible tv series path template
   --extensions, -e          types of files that should be sorted (default mp4,avi,mkv,mpeg,mpg,mov,webm)
   --concurrency, -c         search concurrency [warning] setting this too high can cause rate-limiting
                             errors (default 6)
@@ -97,6 +98,9 @@ $ media-sort --help
     https://godoc.org/github.com/jpillora/media-sort/sort#pkg-variables
   and you can view all possible template variables here:
     https://godoc.org/github.com/jpillora/media-sort/sort#Result
+
+  The Plex-compatible tv series template is:
+    ./<title>/Season <season>/<title> S<season>E<episode>.ext
 
   Version:
     0.0.0-src
