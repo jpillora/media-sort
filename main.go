@@ -30,6 +30,9 @@ default values here:
   https://godoc.org/github.com/jpillora/media-sort/sort#pkg-variables
 and you can view all possible template variables here:
   https://godoc.org/github.com/jpillora/media-sort/sort#Result
+
+The Plex-compatible tv series template is:
+  ./<title>/Season <season>/<title> S<season>E<episode>.ext
 `
 )
 

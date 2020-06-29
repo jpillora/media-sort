@@ -33,12 +33,15 @@ type Result struct {
 var (
 	DefaultTVTemplate = `{{ .Name }} S{{ printf "%02d" .Season }}E{{ printf "%02d" .Episode }}` +
 		`{{ if ne .ExtraEpisode -1 }}-{{ printf "%02d" .ExtraEpisode }}{{end}}.{{ .Ext }}`
+	PlexTVTemplate = `{{ .Name }}/Season {{ printf "%02d" .Season }}/{{ .Name }} S{{ printf "%02d" .Season }}E{{ printf "%02d" .Episode }}` +
+		`{{ if ne .ExtraEpisode -1 }}-{{ printf "%02d" .ExtraEpisode }}{{end}}.{{ .Ext }}`
 	DefaultMovieTemplate = "{{ .Name }} ({{ .Year }}).{{ .Ext }}"
 )
 
 type PathConfig struct {
 	TVTemplate    string `help:"tv series path template"`
 	MovieTemplate string `help:"movie path template"`
+	Plex          bool   `help:"use a Plex-compatible tv series path template"`
 }
 
 var prettyPathFuncs = template.FuncMap{}
@@ -52,6 +55,9 @@ func (result *Result) PrettyPath(config PathConfig) (string, error) {
 	}
 	if config.MovieTemplate == "" {
 		config.MovieTemplate = DefaultMovieTemplate
+	}
+	if config.Plex {
+		config.TVTemplate = PlexTVTemplate
 	}
 	//find template
 	tmpl := ""
