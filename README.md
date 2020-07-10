@@ -65,17 +65,15 @@ $ media-sort --help
   --tv-template             tv series path template
   --movie-template          movie path template
   --extensions, -e          types of files that should be sorted (default mp4,avi,mkv,mpeg,mpg,mov,webm)
-  --concurrency, -c         search concurrency [warning] setting this too high can cause rate-limiting
-                            errors (default 6)
+  --concurrency, -c         search concurrency [warning] setting this too high can cause rate-limiting errors (default 6)
   --file-limit, -f          maximum number of files to search (default 1000)
-  --num-dirs, -n            number of directories to include in search (default 0)
+  --num-dirs, -n            number of directories to include in search (default 0 where -1 means all dirs)
   --accuracy-threshold, -a  filename match accuracy threshold (default 95)
   --min-file-size           minimum file size (default 25MB)
   --recursive, -r           also search through subdirectories
   --dry-run, -d             perform sort but don't actually move any files
   --skip-hidden, -s         skip dot files
-  --action                  filesystem action used to sort files (available <copy|link|move>, default
-                            move)
+  --action                  filesystem action used to sort files (copy|link|move, default move)
   --hard-link, -h           use hardlinks instead of symlinks (forces --action link)
   --overwrite, -o           overwrites duplicates
   --overwrite-if-larger     overwrites duplicates if the new file is larger
