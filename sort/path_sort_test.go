@@ -2,6 +2,7 @@ package mediasort
 
 import (
 	"log"
+	"strings"
 	"testing"
 
 	mediasearch "github.com/jpillora/media-sort/search"
@@ -93,9 +94,11 @@ func TestPathParse(t *testing.T) {
 			},
 		},
 	} {
+		//support windows
+		path := strings.ReplaceAll(tc.Input, "/", sep)
 		//defaults
 		exp := tc.Expect
-		exp.Path = tc.Input
+		exp.Path = path
 		if exp.Season == 0 {
 			exp.Season = 1
 		}
@@ -106,7 +109,7 @@ func TestPathParse(t *testing.T) {
 			exp.ExtraEpisode = -1
 		}
 		//execute test case
-		got, err := runPathParse(tc.Input, tc.Depth)
+		got, err := runPathParse(path, tc.Depth)
 		if err != nil {
 			t.Fatal(err)
 		}
