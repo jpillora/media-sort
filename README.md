@@ -73,7 +73,7 @@ $ media-sort --help
   --recursive, -r           also search through subdirectories
   --dry-run, -d             perform sort but don't actually move any files
   --skip-hidden, -s         skip dot files
-  --action                  filesystem action used to sort files (copy|link|move, default move)
+  --action                  filesystem action used to sort files (copy|link|move|mv, default move)
   --hard-link, -h           use hardlinks instead of symlinks (forces --action link)
   --overwrite, -o           overwrites duplicates
   --overwrite-if-larger     overwrites duplicates if the new file is larger
