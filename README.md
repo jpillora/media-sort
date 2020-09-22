@@ -64,7 +64,7 @@ $ media-sort --help
   --movie-dir, -m           movie base directory (defaults to current directory)
   --tv-template             tv series path template
   --movie-template          movie path template
-  --extensions, -e          types of files that should be sorted (default mp4,avi,mkv,mpeg,mpg,mov,webm)
+  --extensions, -e          types of files that should be sorted (default mp4,m4v,avi,mkv,mpeg,mpg,mov,webm)
   --concurrency, -c         search concurrency [warning] setting this too high can cause rate-limiting errors (default 6)
   --file-limit, -f          maximum number of files to search (default 1000)
   --num-dirs, -n            number of directories to include in search (default 0 where -1 means all dirs)
