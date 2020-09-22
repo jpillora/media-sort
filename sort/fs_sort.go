@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -33,7 +34,7 @@ type Config struct {
 	Recursive         bool          `opts:"help=also search through subdirectories"`
 	DryRun            bool          `opts:"help=perform sort but don't actually move any files"`
 	SkipHidden        bool          `opts:"help=skip dot files"`
-	Action            Action        `opts:"help=filesystem action used to sort files (copy|link|move)"`
+	Action            Action        `opts:"help=filesystem action used to sort files (copy|link|move|mv)"`
 	HardLink          bool          `opts:"help=use hardlinks instead of symlinks (forces --action link)"`
 	Overwrite         bool          `opts:"help=overwrites duplicates"`
 	OverwriteIfLarger bool          `opts:"help=overwrites duplicates if the new file is larger"`
@@ -72,6 +73,8 @@ const (
 	LinkAction Action = "link"
 	// CopyAction sorts by copying
 	CopyAction Action = "copy"
+	// MvAction sorts by using the "/bin/mv" command line util
+	MvAction Action = "mv"
 )
 
 type linkType string
@@ -101,7 +104,7 @@ func FileSystemSort(c Config) error {
 		return errors.New("Link is already specified, Overwrite won't do anything")
 	}
 	switch c.Action {
-	case MoveAction, LinkAction, CopyAction:
+	case MoveAction, LinkAction, CopyAction, MvAction:
 		break
 	default:
 		return errors.New("Provided action is not available")
@@ -348,6 +351,8 @@ func (fs *fsSort) verbf(f string, args ...interface{}) {
 
 func (fs *fsSort) action(src, dst string) error {
 	switch fs.Action {
+	case MvAction:
+		return mv(src, dst)
 	case MoveAction:
 		return move(src, dst)
 	case CopyAction:
@@ -356,6 +361,14 @@ func (fs *fsSort) action(src, dst string) error {
 		return link(src, dst, fs.linkType)
 	}
 	return errors.New("unknown action")
+}
+
+func mv(src, dst string) error {
+	cmd := exec.Command("/bin/mv", src, dst)
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func move(src, dst string) error {
