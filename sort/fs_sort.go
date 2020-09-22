@@ -33,6 +33,7 @@ type Config struct {
 	Recursive         bool          `opts:"help=also search through subdirectories"`
 	DryRun            bool          `opts:"help=perform sort but don't actually move any files"`
 	SkipHidden        bool          `opts:"help=skip dot files"`
+	SkipSubs          bool          `opts:"help=skip subtitles (srt files)"`
 	Action            Action        `opts:"help=filesystem action used to sort files (copy|link|move)"`
 	HardLink          bool          `opts:"help=use hardlinks instead of symlinks (forces --action link)"`
 	Overwrite         bool          `opts:"help=overwrites duplicates"`
@@ -294,12 +295,15 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 	}
 	newPath = filepath.Join(baseDir, newPath)
 	//check for subs.srt file
-	pathSubs := strings.TrimSuffix(result.Path, filepath.Ext(result.Path)) + ".srt"
-	_, err = os.Stat(pathSubs)
-	hasSubs := err == nil
+	hasSubs := false
 	subsExt := ""
-	if hasSubs {
-		subsExt = "," + color.GreenString("srt")
+	pathSubs := strings.TrimSuffix(result.Path, filepath.Ext(result.Path)) + ".srt"
+	if fs.SkipSubs == false {
+		_, err = os.Stat(pathSubs)
+		hasSubs = err == nil
+		if hasSubs {
+			subsExt = "," + color.GreenString("srt")
+		}
 	}
 	//found sort path
 	log.Printf("[#%d/%d] %s\n  └─> %s", file.id, len(fs.sorts), color.GreenString(result.Path)+subsExt, color.GreenString(newPath)+subsExt)
