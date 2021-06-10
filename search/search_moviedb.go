@@ -82,7 +82,7 @@ func (mr movieDBResult) toResult() (Result, error) {
 	}
 	if movieTitle != "" && mr.ReleaseDate != "" {
 		r.Type = Movie
-		r.Title = mr.OriginalTitle
+		r.Title = movieTitle
 		m := getYear.FindStringSubmatch(mr.ReleaseDate)
 		if len(m) == 0 {
 			return r, fmt.Errorf("movieDB error: No movie year: %s", mr.ReleaseDate)
