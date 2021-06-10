@@ -28,20 +28,13 @@ $ go get -v github.com/jpillora/media-sort
 ### Quick use
 
 ``` sh
-$ curl https://i.jpillora.com/media-sort | bash
-Downloading media-sort...
-Latest version is 2.X.X
-######################################### 100.0%
-$ ./media-sort --dry-run --recursive .
+$ curl https://i.jpillora.com/media-sort! | bash
+Installing jpillora/media-sort v2.4.3.....
+######################################################################## 100.0%
+Installed at /usr/local/bin/media-sort
 ```
 
-Optionally move into `$PATH`
-
-```
-$ mv media-sort /usr/local/bin/
-```
-
-Test run `media-sort`
+Test run `media-sort` (read-only mode)
 
 ```
 $ cd my-media/
@@ -58,38 +51,38 @@ $ media-sort --dry-run --recursive .
 $ media-sort --help
 ```
 
-<tmpl,code: go run main.go --help>
 ``` plain
 
-  Usage: media-sort [options] targets...
+  Usage: media-sort [options] <target> [target] ...
 
   media-sort categorizes the provided files and directories (targets) by
   moving them into to a structured directory tree, sorting is currently
-  performed using TVMaze, OMDB and Google.
+  performed using TVMaze, MovieDB and Google.
 
   Options:
-  --tv-dir, -t           tv series base directory (defaults to current
-                         directory)
-  --movie-dir, -m        movie base directory (defaults to current directory)
-  --tv-template          tv series path template
-  --movie-template       movie path template
-  --extensions, -e       types of files that should be sorted (default
-                         mp4,avi,mkv)
-  --concurrency, -c      search concurrency [warning] setting this too high
-                         can cause rate-limiting errors (default 6)
-  --file-limit, -f       maximum number of files to search (default 1000)
-  --min-file-size        minimum file size (default 25MB)
-  --recursive, -r        also search through subdirectories
-  --dry-run, -d          perform sort but don't actually move any files
-  --skip-hidden, -s      skip dot files
-  --overwrite, -o        overwrites duplicates
-  --overwrite-if-larger  overwrites duplicates if the new file is larger
-  --watch, -w            watch the specified directories for changes and
-                         re-sort on change
-  --watch-delay          delay before next sort after a change (default 3s)
-  --verbose, -v          verbose logs
-  --help, -h
-  --version
+  --tv-dir, -t              tv series base directory (defaults to current directory)
+  --movie-dir, -m           movie base directory (defaults to current directory)
+  --tv-template             tv series path template
+  --movie-template          movie path template
+  --extensions, -e          types of files that should be sorted (default mp4,m4v,avi,mkv,mpeg,mpg,mov,webm)
+  --concurrency, -c         search concurrency [warning] setting this too high can cause rate-limiting errors (default 6)
+  --file-limit, -f          maximum number of files to search (default 1000)
+  --num-dirs, -n            number of directories to include in search (default 0 where -1 means all dirs)
+  --accuracy-threshold, -a  filename match accuracy threshold (default 95)
+  --min-file-size           minimum file size (default 25MB)
+  --recursive, -r           also search through subdirectories
+  --dry-run, -d             perform sort but don't actually move any files
+  --skip-hidden, -s         skip dot files
+  --skip-subs               skip subtitles (srt files)
+  --action                  filesystem action used to sort files (copy|link|move, default move)
+  --hard-link, -h           use hardlinks instead of symlinks (forces --action link)
+  --overwrite, -o           overwrites duplicates
+  --overwrite-if-larger     overwrites duplicates if the new file is larger
+  --watch, -w               watch the specified directories for changes and re-sort on change
+  --watch-delay             delay before next sort after a change (default 3s)
+  --verbose, -v             verbose logs
+  --version                 display version
+  --help                    display help
 
   by default, tv series are moved to:
     ./<title> S<season>E<episode>.<ext>
@@ -105,13 +98,12 @@ $ media-sort --help
     https://godoc.org/github.com/jpillora/media-sort/sort#Result
 
   Version:
-    0.0.0-src
+    X.Y.Z
 
   Read more:
     github.com/jpillora/media-sort
 
 ```
-</tmpl>
 
 #### Programmatic Use
 
@@ -125,26 +117,3 @@ The API has 3 layers:
     Attempts to extract search query information from the path string, returns result which can be used to format a new path or `result.PrettyPath()` can be used.
 3. A filesystem correction (using `Sort`): `mediasort.FileSystemSort(config mediasort.Config) error`
     Attempts to sort all paths provided in `config.Targets`, when successful - results are formatted and renamed to use the newly formatted path.
-
-#### MIT License
-
-Copyright © 2016 Jaime Pillora &lt;dev@jpillora.com&gt;
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
