@@ -1,7 +1,6 @@
 package mediasearch
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
@@ -26,26 +25,25 @@ func searchGoogle(query, year string, mediatype MediaType) ([]Result, error) {
 		log.Printf("Searching Google for '%s'", query)
 	}
 	v := url.Values{}
-	v.Set("btnI", "") //I'm feeling lucky
 	v.Set("q", query)
-	urlstr := "https://www.google.com.au/search?" + v.Encode()
-	req, err := http.NewRequest("HEAD", urlstr, nil)
+	v.Set("btnI", "I'm feeling lucky")
+	urlstr := "https://www.google.com/search?" + v.Encode()
+	req, err := http.NewRequest("GET", urlstr, nil)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Accept", "*/*")
 	//I'm a browser... :)
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) "+
-		"AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36")
 	//roundtripper doesn't follow redirects
 	resp, err := http.DefaultTransport.RoundTrip(req)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	resp.Body.Close()
 	//assume redirection
-	if resp.StatusCode != 302 {
-		return nil, errors.New("Google search failed")
+	if resp.StatusCode/100 != 3 {
+		return nil, fmt.Errorf("Google search expected redirect, got %d", resp.StatusCode)
 	}
 	//extract Location header URL
 	loc := resp.Header.Get("Location")

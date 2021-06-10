@@ -7,19 +7,21 @@ import (
 	"github.com/agnivade/levenshtein"
 )
 
-var nonalpha = regexp.MustCompile(`[^a-z0-9]`)
-var yearstr = `(19\d\d|20\d\d)`
-var onlyYear = regexp.MustCompile(`^` + yearstr + `$`)
-var getYear = regexp.MustCompile(`\b` + yearstr + `\b`)
-var getDate = regexp.MustCompile(`\b` + yearstr + `-(\d\d)-(\d\d)\b`)
-var sample = regexp.MustCompile(`\bsample\b`)
-var encodings = regexp.MustCompile(`\b(720p|1080p|hdtv|x264|dts|bluray)\b.*`) //strip all junk
-var spaces = regexp.MustCompile(`\s+`)
-var episeason = regexp.MustCompile(`^(.+?)\bs?(eason)?(\d{1,2})(e|\ |\ e|x|xe)(pisode)?(\d{1,2})\b`)
-var epidate = regexp.MustCompile(`^(.+?\b)(` + yearstr + ` \d{2} \d{2}|\d{2} \d{2} ` + yearstr + `)\b`)
-var year = regexp.MustCompile(`^(.+?\b)` + yearstr + `\b`)
-var joinedepiseason = regexp.MustCompile(`^(.+?\b)(\d)(\d{2})\b`)
-var partnum = regexp.MustCompile(`^(.+?\b)(\d{1,2})\b`)
+var (
+	nonalpha        = regexp.MustCompile(`[^a-z0-9]`)
+	yearstr         = `(19\d\d|20\d\d)`
+	onlyYear        = regexp.MustCompile(`^` + yearstr + `$`)
+	getYear         = regexp.MustCompile(`\b` + yearstr + `\b`)
+	getDate         = regexp.MustCompile(`\b` + yearstr + `-(\d\d)-(\d\d)\b`)
+	sample          = regexp.MustCompile(`\bsample\b`)
+	encodings       = regexp.MustCompile(`\b(720p|1080p|hdtv|x264|dts|bluray)\b.*`) //strip all junk
+	spaces          = regexp.MustCompile(`\s+`)
+	episeason       = regexp.MustCompile(`^(.+?)\bs?(eason)?(\d{1,2})(e|\ |\ e|x|xe)(pisode)?(\d{1,2})\b`)
+	epidate         = regexp.MustCompile(`^(.+?\b)(` + yearstr + ` \d{2} \d{2}|\d{2} \d{2} ` + yearstr + `)\b`)
+	year            = regexp.MustCompile(`^(.+?\b)` + yearstr + `\b`)
+	joinedepiseason = regexp.MustCompile(`^(.+?\b)(\d)(\d{2})\b`)
+	partnum         = regexp.MustCompile(`^(.+?\b)(\d{1,2})\b`)
+)
 
 // Normalize strings to become search terms
 func Normalize(s string) string {

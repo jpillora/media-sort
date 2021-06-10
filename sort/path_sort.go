@@ -3,6 +3,7 @@ package mediasort
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -11,14 +12,31 @@ import (
 	mediasearch "github.com/jpillora/media-sort/search"
 )
 
+//Sort the given path, creates a search query,
+//performing the search and returning a Result
 func Sort(path string) (*Result, error) {
 	return SortThreshold(path, 95)
 }
 
+//SortThreshold sorts the given path, creates a search query,
+//performing the search with the given threshold and returning a Result
 func SortThreshold(path string, threshold int) (*Result, error) {
-	return runPathSort(path, threshold)
+	return SortDepthThreshold(path, 0, threshold)
 }
 
+//SortDepthThreshold sorts the given path, includes <depth>
+//parent directories, creates a search query,
+//performing the search with the given threshold and returning a Result
+func SortDepthThreshold(path string, depth, threshold int) (*Result, error) {
+	r, err := runPathSort(path, threshold, depth)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+//Result holds both the results from parsing path, and the from
+//performing the search
 type Result struct {
 	Query                         string
 	Name, Path                    string
@@ -31,11 +49,14 @@ type Result struct {
 }
 
 var (
+	//DefaultTVTemplate defines the default TV path format
 	DefaultTVTemplate = `{{ .Name }} S{{ printf "%02d" .Season }}E{{ printf "%02d" .Episode }}` +
 		`{{ if ne .ExtraEpisode -1 }}-{{ printf "%02d" .ExtraEpisode }}{{end}}.{{ .Ext }}`
+	//DefaultMovieTemplate defines the default movie path format
 	DefaultMovieTemplate = "{{ .Name }} ({{ .Year }}).{{ .Ext }}"
 )
 
+//PathConfig customises the path templates
 type PathConfig struct {
 	TVTemplate    string `help:"tv series path template"`
 	MovieTemplate string `help:"movie path template"`
@@ -75,29 +96,42 @@ func (result *Result) PrettyPath(config PathConfig) (string, error) {
 	return prettyPath, nil
 }
 
-func runPathSort(path string, threshold int) (*Result, error) {
-	if sample.MatchString(strings.ToLower(path)) {
-		return nil, fmt.Errorf("Skipped sample media")
-	}
-	_, name := filepath.Split(path)
-	ext := getExtension(name)
-	name = strings.TrimSuffix(name, ext)
-	result := &Result{
-		Name:         name,
+func runPathParse(path string, depth int) (Result, error) {
+	result := Result{
 		Path:         path,
-		Ext:          strings.TrimPrefix(ext, "."),
 		Season:       1,
 		Episode:      -1,
 		ExtraEpisode: -1,
 	}
-	//normalize name
-	query := mediasearch.Normalize(result.Name)
+	if sample.MatchString(strings.ToLower(path)) {
+		return result, fmt.Errorf("Skipped sample media")
+	}
+	dir, name := filepath.Split(path)
+	ext := getExtension(name)
+	name = strings.TrimSuffix(name, ext)
+	//add depth*parts of dir onto name
+	dir = strings.Trim(dir, sep)
+	parts := []string{}
+	if dir != "" {
+		parts = strings.Split(dir, sep)
+	}
+	l := len(parts)
+	if depth < 0 || depth > l {
+		depth = l
+	}
+	name = strings.Join(append(parts[l-depth:], name), " ")
+	//split name/ext
+	result.Name = name
+	result.Ext = strings.TrimPrefix(ext, ".")
+	//query is normalized name
+	query := mediasearch.Normalize(name)
+	log.Printf("'%s' -> '%s'", name, query)
 	//extract episode date (weekly show)
 	if result.MType == "" {
 		m := epidate.FindStringSubmatch(query)
 		if len(m) > 0 {
 			query = m[1] //trim name
-			result.MType = "series"
+			result.MType = string(mediasearch.Series)
 			result.EpisodeDate = strings.Replace(m[2], " ", "-", 2)
 		}
 	}
@@ -106,7 +140,7 @@ func runPathSort(path string, threshold int) (*Result, error) {
 		m := doubleepiseason.FindStringSubmatch(query)
 		if len(m) > 0 {
 			query = m[1] //trim name
-			result.MType = "series"
+			result.MType = string(mediasearch.Series)
 			result.Season, _ = strconv.Atoi(m[2])
 			result.Episode, _ = strconv.Atoi(m[4])
 			result.ExtraEpisode, _ = strconv.Atoi(m[6])
@@ -117,17 +151,32 @@ func runPathSort(path string, threshold int) (*Result, error) {
 		m := episeason.FindStringSubmatch(query)
 		if len(m) > 0 {
 			query = m[1] //trim name
-			result.MType = "series"
+			result.MType = string(mediasearch.Series)
 			result.Season, _ = strconv.Atoi(m[3])
 			result.Episode, _ = strconv.Atoi(m[6])
 		}
+		//second chance, search untrimmed name
+		if len(m) == 0 {
+			m = episeason.FindStringSubmatch(name)
+		}
+		if len(m) > 0 {
+			//cant't trim query
+			result.MType = string(mediasearch.Series)
+			result.Season, _ = strconv.Atoi(m[3])
+			result.Episode, _ = strconv.Atoi(m[6])
+		}
+	}
+	//remove phrase "season X" from tv series queries
+	if result.MType == string(mediasearch.Series) && season.MatchString(query) {
+		//and re-noramlise
+		query = mediasearch.Normalize(season.ReplaceAllString(query, ""))
 	}
 	//extract *joined* episode season numbers
 	if result.MType == "" {
 		m := joinedepiseason.FindStringSubmatch(query)
 		if len(m) > 0 {
 			query = m[1] //trim name
-			result.MType = "series"
+			result.MType = string(mediasearch.Series)
 			result.Season, _ = strconv.Atoi(m[2])
 			result.Episode, _ = strconv.Atoi(m[3])
 		}
@@ -137,7 +186,7 @@ func runPathSort(path string, threshold int) (*Result, error) {
 	if len(m) > 0 {
 		query = m[1] //trim name
 		if result.MType == "" {
-			result.MType = "movie" //set type to "movie", if not already set
+			result.MType = string(mediasearch.Movie) //set type to "movie", if not already set
 		}
 		result.Year = m[2]
 	}
@@ -150,10 +199,19 @@ func runPathSort(path string, threshold int) (*Result, error) {
 	}
 	//trim spaces
 	result.Query = strings.TrimSpace(query)
+	//ready for search
+	return result, nil
+}
+
+func runPathSort(path string, threshold, depth int) (Result, error) {
+	result, err := runPathParse(path, depth)
+	if err != nil {
+		return result, err
+	}
 	//search for normalized name
 	searchResult, err := mediasearch.SearchThreshold(result.Query, result.Year, result.MType, threshold)
 	if err != nil {
-		return nil, err //search failed
+		return result, err
 	}
 	//use results
 	result.Name = searchResult.Title

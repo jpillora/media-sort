@@ -35,12 +35,13 @@ and you can view all possible template variables here:
 
 func main() {
 	c := mediasort.Config{
-		Extensions:        "mp4,avi,mkv",
+		Extensions:        "mp4,m4v,avi,mkv,mpeg,mpg,mov,webm",
 		Concurrency:       6,
 		FileLimit:         1000,
 		MinFileSize:       sizestr.Bytes(sizestr.MustParse("25MB")),
 		WatchDelay:        3 * time.Second,
-		AccuracyThreshold: 95, //100 is perfect match
+		AccuracyThreshold: 95, //100 is perfect match,
+		Action:            mediasort.MoveAction,
 	}
 
 	opts.New(&c).
@@ -48,6 +49,7 @@ func main() {
 		Repo("github.com/jpillora/media-sort").
 		DocAfter("usage", "info", info).
 		DocBefore("version", "pathtemplates", pathTemplates).
+		SetLineWidth(128).
 		Version(version).
 		Parse()
 
