@@ -39,6 +39,7 @@ type Config struct {
 	Overwrite         bool          `opts:"help=overwrites duplicates"`
 	OverwriteIfLarger bool          `opts:"help=overwrites duplicates if the new file is larger"`
 	Watch             bool          `opts:"help=watch the specified directories for changes and re-sort on change"`
+	WatchOnlyTopDir   bool          `opts:"help=watch only the directories specified in the command line"`
 	WatchDelay        time.Duration `opts:"help=delay before next sort after a change"`
 	Verbose           bool          `opts:"help=verbose logs"`
 }
@@ -198,14 +199,24 @@ func (fs *fsSort) sortAllFiles() error {
 }
 
 func (fs *fsSort) watch() error {
-	if len(fs.dirs) == 0 {
+	var dirsToWatch map[string]bool
+	if fs.WatchOnlyTopDir {
+		dirsToWatch = map[string]bool{}
+		for _, path := range fs.Targets {
+			dirsToWatch[path] = true
+		}
+	} else {
+		dirsToWatch = fs.dirs
+	}
+
+	if len(dirsToWatch) == 0 {
 		return errors.New("No directories to watch")
 	}
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return fmt.Errorf("Failed to create file watcher: %s", err)
 	}
-	for dir := range fs.dirs {
+	for dir := range dirsToWatch {
 		if err := watcher.Add(dir); err != nil {
 			return fmt.Errorf("Failed to watch directory: %s", err)
 		}
