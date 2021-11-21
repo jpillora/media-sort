@@ -294,10 +294,10 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 		return fmt.Errorf("Invalid result type: %s", result.MType)
 	}
 	newPath = filepath.Join(baseDir, newPath)
-	//check for subs.srt file
+	//check for subs.en.srt file
 	hasSubs := false
 	subsExt := ""
-	pathSubs := strings.TrimSuffix(result.Path, filepath.Ext(result.Path)) + ".srt"
+	pathSubs := strings.TrimSuffix(result.Path, filepath.Ext(result.Path)) + ".en.srt"
 	if fs.SkipSubs == false {
 		_, err = os.Stat(pathSubs)
 		hasSubs = err == nil
@@ -336,9 +336,9 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 	if err != nil {
 		return err //failed to move
 	}
-	//if .srt file exists for the file, action it too
+	//if .en.srt file exists for the file, action it too
 	if hasSubs {
-		newPathSubs := strings.TrimSuffix(newPath, filepath.Ext(newPath)) + ".srt"
+		newPathSubs := strings.TrimSuffix(newPath, filepath.Ext(newPath)) + ".en.srt"
 		fs.action(pathSubs, newPathSubs) //best-effort
 	}
 	return nil
