@@ -298,19 +298,18 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 	subsFiles := []string{}
 	subsExt := ""
 
-	pathDir := filepath.Dir(result.Path)
-	files, err := ioutil.ReadDir(pathDir)
+	originalPathDir := filepath.Dir(result.Path)
+	originalPathDirFiles, err := ioutil.ReadDir(originalPathDir)
 	if err != nil {
 		return err
 	}
 	// add all .srt subs found in the same folder to be moved
 	if fs.SkipSubs == false {
-		for _, file := range files {
+		for _, adjacentFile := range originalPathDirFiles {
 			originalFileName := filepath.Base(strings.TrimSuffix(result.Path, filepath.Ext(result.Path)))
 
-			if strings.HasPrefix(file.Name(), originalFileName) && strings.HasSuffix(file.Name(), ".srt") {
-				tempSubsPath := pathDir + "/" + file.Name()
-				subsFiles = append(subsFiles, tempSubsPath)
+			if strings.HasPrefix(adjacentFile.Name(), originalFileName) && strings.HasSuffix(adjacentFile.Name(), ".srt") {
+				subsFiles = append(subsFiles, originalPathDir+"/"+adjacentFile.Name())
 			}
 		}
 	}
