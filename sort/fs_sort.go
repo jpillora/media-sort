@@ -298,13 +298,14 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 	subsFiles := []string{}
 	subsExt := ""
 
-	originalPathDir := filepath.Dir(result.Path)
-	originalPathDirFiles, err := ioutil.ReadDir(originalPathDir)
-	if err != nil {
-		return err
-	}
 	// add all .srt subs found in the same folder to be moved
 	if fs.SkipSubs == false {
+		originalPathDir := filepath.Dir(result.Path)
+		originalPathDirFiles, err := ioutil.ReadDir(originalPathDir)
+		if err != nil {
+			return err
+		}
+
 		for _, adjacentFile := range originalPathDirFiles {
 			originalFileName := filepath.Base(strings.TrimSuffix(result.Path, filepath.Ext(result.Path)))
 
