@@ -348,7 +348,7 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 	if err != nil {
 		return err //failed to move
 	}
-	//if .srt files exists for the file, action them too
+	//if .srt files exist for the file, action them too
 	if len(subsFiles) > 0 {
 		for _, pathSubs := range subsFiles {
 			targetSuffix := strings.Replace(pathSubs, strings.TrimSuffix(result.Path, filepath.Ext(result.Path)), "", 1)
