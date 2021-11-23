@@ -294,16 +294,28 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 		return fmt.Errorf("Invalid result type: %s", result.MType)
 	}
 	newPath = filepath.Join(baseDir, newPath)
-	//check for subs.en.srt file
-	hasSubs := false
+	//check for subs.*.srt files
+	subsFiles := []string{}
 	subsExt := ""
-	pathSubs := strings.TrimSuffix(result.Path, filepath.Ext(result.Path)) + ".en.srt"
+
+	pathDir := filepath.Dir(result.Path)
+	files, err := ioutil.ReadDir(pathDir)
+	if err != nil {
+		return err
+	}
+	// add all .srt subs found in the same folder to be moved
 	if fs.SkipSubs == false {
-		_, err = os.Stat(pathSubs)
-		hasSubs = err == nil
-		if hasSubs {
-			subsExt = "," + color.GreenString("srt")
+		for _, file := range files {
+			originalFileName := filepath.Base(strings.TrimSuffix(result.Path, filepath.Ext(result.Path)))
+
+			if strings.HasPrefix(file.Name(), originalFileName) && strings.HasSuffix(file.Name(), ".srt") {
+				tempSubsPath := pathDir + "/" + file.Name()
+				subsFiles = append(subsFiles, tempSubsPath)
+			}
 		}
+	}
+	if len(subsFiles) > 0 {
+		subsExt = "," + color.GreenString("srt(s)")
 	}
 	//found sort path
 	log.Printf("[#%d/%d] %s\n  └─> %s", file.id, len(fs.sorts), color.GreenString(result.Path)+subsExt, color.GreenString(newPath)+subsExt)
@@ -336,10 +348,13 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 	if err != nil {
 		return err //failed to move
 	}
-	//if .en.srt file exists for the file, action it too
-	if hasSubs {
-		newPathSubs := strings.TrimSuffix(newPath, filepath.Ext(newPath)) + ".en.srt"
-		fs.action(pathSubs, newPathSubs) //best-effort
+	//if .srt files exists for the file, action it too
+	if len(subsFiles) > 0 {
+		for _, pathSubs := range subsFiles {
+			targetSuffix := strings.Replace(pathSubs, strings.TrimSuffix(result.Path, filepath.Ext(result.Path)), "", 1)
+			newPathSubs := strings.TrimSuffix(newPath, filepath.Ext(newPath)) + targetSuffix
+			fs.action(pathSubs, newPathSubs) //best-effort
+		}
 	}
 	return nil
 }
