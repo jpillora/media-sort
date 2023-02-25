@@ -11,6 +11,6 @@ require (
 	github.com/jpillora/sizestr v1.0.0
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/posener/complete v1.2.3 // indirect
-	golang.org/x/sys v0.0.0-20200602225109-6fdc65e7d980 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7
 )
