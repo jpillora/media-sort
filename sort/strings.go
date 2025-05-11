@@ -5,7 +5,7 @@ import (
 	"regexp"
 )
 
-//NOTE strings have been mediasearch.Normalized before these regexps run over them
+// NOTE strings have been mediasearch.Normalized before these regexps run over them
 var (
 	yearstr         = `(19\d\d|20\d\d)`
 	sample          = regexp.MustCompile(`\bsample\b`)
@@ -27,6 +27,11 @@ var (
 	doubleDash      = regexp.MustCompile(`-(\s*-\s*)+ `)
 	doubleSpace     = regexp.MustCompile(`\s+`)
 	sep             = string(filepath.Separator)
+	// Audiobook specific patterns
+	authorTitle   = regexp.MustCompile(`^(.+?)\s+-\s+(.+?)(?:\.[^.]+)?$`)                             // Author - Title
+	narratorParen = regexp.MustCompile(`(?i)\(.*narrated\s+by\s+([^)]+)\)`)                           // (Narrated by Narrator)
+	seriesBook    = regexp.MustCompile(`(?i)(?:Book|Part)\s*(\d+)(?:\s*(?:of|in)\s*(.+?))?\s*:(.+)$`) // Book N of/in Series: Title
+	authorBy      = regexp.MustCompile(`(?i)(.+?)\s+by\s+(.+?)(?:\.[^.]+)?$`)                         // Title by Author
 )
 
 func fixPath(s string) string {

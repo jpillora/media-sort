@@ -41,8 +41,10 @@ $ cd my-media/
 $ media-sort --dry-run --recursive .
 2016/01/30 09:35:47 [Dryrun]
 2016/01/30 09:35:47 Searching dick van dyke show (series)
-2016/01/30 09:35:47 [#1/1] dick-van-dyke-show.s01e10.[Awesome-Audio]-[Super-Quality]-[Name-of-Encoder].mp4
+2016/01/30 09:35:47 [#1/2] dick-van-dyke-show.s01e10.[Awesome-Audio]-[Super-Quality]-[Name-of-Encoder].mp4
   └─> The Dick Van Dyke Show S01E10.mp4
+2016/01/30 09:35:48 [#2/2] Project.Hail.Mary.by.Andy.Weir.(Narrated.by.Ray.Porter).m4b
+  └─> Andy Weir/Project Hail Mary (Narrated by Ray Porter).m4b
 ```
 
 ### CLI Usage
@@ -57,14 +59,16 @@ $ media-sort --help
 
   media-sort categorizes the provided files and directories (targets) by
   moving them into to a structured directory tree, sorting is currently
-  performed using TVMaze, MovieDB and Google.
+  performed using TVMaze, MovieDB, Google Books, and other metadata sources.
 
   Options:
   --tv-dir, -t              tv series base directory (defaults to current directory)
   --movie-dir, -m           movie base directory (defaults to current directory)
+  --audiobook-dir, -a       audiobook base directory (defaults to current directory)
   --tv-template             tv series path template
   --movie-template          movie path template
-  --extensions, -e          types of files that should be sorted (default mp4,m4v,avi,mkv,mpeg,mpg,mov,webm)
+  --audiobook-template      audiobook path template
+  --extensions, -e          types of files that should be sorted (default mp4,m4v,avi,mkv,mpeg,mpg,mov,webm,mp3,m4b,aac,flac,aa,aax)
   --concurrency, -c         search concurrency [warning] setting this too high can cause rate-limiting errors (default 6)
   --file-limit, -f          maximum number of files to search (default 1000)
   --num-dirs, -n            number of directories to include in search (default 0 where -1 means all dirs)
@@ -86,12 +90,14 @@ $ media-sort --help
 
   by default, tv series are moved to:
     ./<title> S<season>E<episode>.<ext>
-  and movies are moved to:
+  movies are moved to:
     ./<title> (<year>).<ext>
+  and audiobooks are moved to:
+    ./<author>/{{ if .Series }}{{ .Series }} - {{ printf "%02d" .SeriesPart }} - {{end}}{{ .Title }}{{ if .Narrator }} (Narrated by {{ .Narrator }}){{end}}.<ext>
 
-  to modify the these paths, you can use the --tv-template and
-  --movie-template options. These options describe the new file path for
-  tv series and movies using Go template syntax. You can find the
+  to modify these paths, you can use the --tv-template, --movie-template, and
+  --audiobook-template options. These options describe the new file path for
+  tv series, movies, and audiobooks using Go template syntax. You can find the
   default values here:
     https://godoc.org/github.com/jpillora/media-sort/sort#pkg-variables
   and you can view all possible template variables here:

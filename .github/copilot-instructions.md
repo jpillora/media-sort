@@ -1,0 +1,1 @@
+- before assuming a task is done, first use `go build -o /dev/null` to check for compilation errors

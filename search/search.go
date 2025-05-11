@@ -10,31 +10,32 @@ import (
 
 const debugMode = false
 
-//search function interface
+// search function interface
 type search func(string, string, MediaType) ([]Result, error)
 
-//various searches based on media-type
+// various searches based on media-type
 var tvSearches = []search{searchTVMaze, searchMovieDB, searchGoogle}
 var movieSearches = []search{searchMovieDB, searchGoogle}
+var audiobookSearches = []search{searchGoogleBooks}
 
-//thread-safe global search cache
-//lock protects the cache/inflight maps
+// thread-safe global search cache
+// lock protects the cache/inflight maps
 var lock sync.Mutex
 var cache = map[string]Result{} //TODO(jpillora) global cache will grow forever, should convert to LRU cache
 var inflight = map[string]*sync.WaitGroup{}
 
-//Search for IMDB data (query is required, year and media type are optional)
+// Search for IMDB data (query is required, year and media type are optional)
 func Search(query, year, mediatype string) (Result, error) {
 	return SearchThreshold(query, year, mediatype, DefaultThreshold)
 }
 
-//SearchThreshold for IMDB data with a specific match threshoold
+// SearchThreshold for IMDB data with a specific match threshoold
 func SearchThreshold(query, year, mediatype string, threshold int) (Result, error) {
 	if year != "" && !onlyYear.MatchString(year) {
 		return Result{}, fmt.Errorf("Invalid year (%s)", year)
 	}
 	mt := MediaType(mediatype)
-	if mediatype != "" && mt != Movie && mt != Series {
+	if mediatype != "" && mt != Movie && mt != Series && mt != Audiobook {
 		return Result{}, fmt.Errorf("Invalid media type (%s)", mediatype)
 	}
 	lock.Lock()
@@ -75,6 +76,8 @@ func SearchThreshold(query, year, mediatype string, threshold int) (Result, erro
 	var searcheEngines = movieSearches
 	if MediaType(mediatype) == Series {
 		searcheEngines = tvSearches
+	} else if MediaType(mediatype) == Audiobook {
+		searcheEngines = audiobookSearches
 	}
 	//search returns results
 	var results []Result
@@ -96,7 +99,7 @@ func SearchThreshold(query, year, mediatype string, threshold int) (Result, erro
 	otherTypes := []Result{}
 	for _, result := range results {
 		//only consider tv/movies
-		if string(result.Type) != "" && result.Type != Series && result.Type != Movie {
+		if string(result.Type) != "" && result.Type != Series && result.Type != Movie && result.Type != Audiobook {
 			continue
 		}
 		//if media type set, ensure match

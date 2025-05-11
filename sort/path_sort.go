@@ -12,21 +12,21 @@ import (
 	mediasearch "github.com/jpillora/media-sort/search"
 )
 
-//Sort the given path, creates a search query,
-//performing the search and returning a Result
+// Sort the given path, creates a search query,
+// performing the search and returning a Result
 func Sort(path string) (*Result, error) {
 	return SortThreshold(path, 95)
 }
 
-//SortThreshold sorts the given path, creates a search query,
-//performing the search with the given threshold and returning a Result
+// SortThreshold sorts the given path, creates a search query,
+// performing the search with the given threshold and returning a Result
 func SortThreshold(path string, threshold int) (*Result, error) {
 	return SortDepthThreshold(path, 0, threshold)
 }
 
-//SortDepthThreshold sorts the given path, includes <depth>
-//parent directories, creates a search query,
-//performing the search with the given threshold and returning a Result
+// SortDepthThreshold sorts the given path, includes <depth>
+// parent directories, creates a search query,
+// performing the search with the given threshold and returning a Result
 func SortDepthThreshold(path string, depth, threshold int) (*Result, error) {
 	r, err := runPathSort(path, threshold, depth)
 	if err != nil {
@@ -35,8 +35,8 @@ func SortDepthThreshold(path string, depth, threshold int) (*Result, error) {
 	return &r, nil
 }
 
-//Result holds both the results from parsing path, and the from
-//performing the search
+// Result holds both the results from parsing path, and the from
+// performing the search
 type Result struct {
 	Query                         string
 	Name, Path                    string
@@ -46,6 +46,11 @@ type Result struct {
 	EpisodeDate                   string //weekly series
 	Year                          string
 	Accuracy                      int
+	// Audiobook specific fields
+	Author     string
+	Narrator   string
+	Series     string
+	SeriesPart int
 }
 
 var (
@@ -54,18 +59,21 @@ var (
 		`{{ if ne .ExtraEpisode -1 }}-{{ printf "%02d" .ExtraEpisode }}{{end}}.{{ .Ext }}`
 	//DefaultMovieTemplate defines the default movie path format
 	DefaultMovieTemplate = "{{ .Name }} ({{ .Year }}).{{ .Ext }}"
+	//DefaultAudiobookTemplate defines the default audiobook path format
+	DefaultAudiobookTemplate = `{{ .Author }}/{{ if .Series }}{{ .Series }} - {{ printf "%02d" .SeriesPart }} - {{end}}{{ .Name }}{{ if .Narrator }} (Narrated by {{ .Narrator }}){{end}}.{{ .Ext }}`
 )
 
-//PathConfig customises the path templates
+// PathConfig customises the path templates
 type PathConfig struct {
-	TVTemplate    string `help:"tv series path template"`
-	MovieTemplate string `help:"movie path template"`
+	TVTemplate        string `help:"tv series path template"`
+	MovieTemplate     string `help:"movie path template"`
+	AudiobookTemplate string `help:"audiobook path template"`
 }
 
 var prettyPathFuncs = template.FuncMap{}
 
-//PrettyPath converts the provided "messy" path into a
-//"pretty" cleanly formatted path using the media result
+// PrettyPath converts the provided "messy" path into a
+// "pretty" cleanly formatted path using the media result
 func (result *Result) PrettyPath(config PathConfig) (string, error) {
 	//config
 	if config.TVTemplate == "" {
@@ -81,6 +89,8 @@ func (result *Result) PrettyPath(config PathConfig) (string, error) {
 		tmpl = config.TVTemplate
 	case mediasearch.Movie:
 		tmpl = config.MovieTemplate
+	case mediasearch.Audiobook:
+		tmpl = config.AudiobookTemplate
 	default:
 		return "", fmt.Errorf("Invalid result type: %s", result.MType)
 	}
@@ -119,6 +129,21 @@ func runPathParse(path string, depth int) (Result, error) {
 	if depth < 0 || depth > l {
 		depth = l
 	}
+
+	// For audiobooks, check if the parent directory is the author and extract title
+	if ext != "" && (strings.EqualFold(ext, ".m4b") ||
+		strings.EqualFold(ext, ".mp3") ||
+		strings.EqualFold(ext, ".aac") ||
+		strings.EqualFold(ext, ".flac") ||
+		strings.EqualFold(ext, ".aa") ||
+		strings.EqualFold(ext, ".aax")) {
+		result.MType = string(mediasearch.Audiobook)
+		if len(parts) > 0 {
+			result.Author = parts[len(parts)-1] // Last directory is author
+		}
+		result.Query = mediasearch.Normalize(name) // Use just the normalized filename as the query
+	}
+
 	name = strings.Join(append(parts[l-depth:], name), " ")
 	//split name/ext
 	result.Name = name
@@ -126,6 +151,21 @@ func runPathParse(path string, depth int) (Result, error) {
 	//query is normalized name
 	query := mediasearch.Normalize(name)
 	log.Printf("'%s' -> '%s'", name, query)
+
+	if result.MType != string(mediasearch.Audiobook) {
+		result.Query = query // Set query only for non-audiobook types
+	}
+
+	// If it's an audiobook, query should be the normalized title
+	if result.MType == string(mediasearch.Audiobook) {
+		query = mediasearch.Normalize(result.Name)
+	}
+
+	// Try to identify audiobook first
+	if tryAudiobookParse(&result, query) {
+		return result, nil
+	}
+
 	//extract episode date (weekly show)
 	if result.MType == "" {
 		m := epidate.FindStringSubmatch(query)
@@ -201,6 +241,51 @@ func runPathParse(path string, depth int) (Result, error) {
 	result.Query = strings.TrimSpace(query)
 	//ready for search
 	return result, nil
+}
+
+func tryAudiobookParse(result *Result, query string) bool {
+	// Try Author - Title format
+	if m := authorTitle.FindStringSubmatch(query); len(m) > 0 {
+		result.Author = m[1]
+		result.Name = m[2]
+		result.MType = string(mediasearch.Audiobook)
+		return true
+	}
+
+	// Try Title by Author format
+	if m := authorBy.FindStringSubmatch(query); len(m) > 0 {
+		result.Name = m[1]
+		result.Author = m[2]
+		result.MType = string(mediasearch.Audiobook)
+		return true
+	}
+
+	// Look for narrator information
+	if m := narratorParen.FindStringSubmatch(query); len(m) > 0 {
+		result.Narrator = m[1]
+		// Remove narrator info from query for further parsing
+		query = narratorParen.ReplaceAllString(query, "")
+	}
+
+	// Try Series Book format
+	if m := seriesBook.FindStringSubmatch(query); len(m) > 0 {
+		result.SeriesPart, _ = strconv.Atoi(m[1])
+		if m[2] != "" {
+			result.Series = m[2]
+		}
+		result.Name = m[3]
+		result.MType = string(mediasearch.Audiobook)
+		return true
+	}
+
+	// Common audiobook extensions
+	switch strings.ToLower(result.Ext) {
+	case "m4b", "aa", "aax":
+		result.MType = string(mediasearch.Audiobook)
+		return true
+	}
+
+	return false
 }
 
 func runPathSort(path string, threshold, depth int) (Result, error) {
