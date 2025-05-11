@@ -23,6 +23,7 @@ type Config struct {
 	Targets           []string `opts:"mode=arg,min=1"`
 	TVDir             string   `opts:"help=tv series base directory (defaults to current directory)"`
 	MovieDir          string   `opts:"help=movie base directory (defaults to current directory)"`
+	AudiobookDir      string   `opts:"help=audiobook base directory (defaults to current directory)"`
 	PathConfig        `mode:"embedded"`
 	Extensions        string        `opts:"help=types of files that should be sorted"`
 	Concurrency       int           `opts:"help=search concurrency [warning] setting this too high can cause rate-limiting errors"`
