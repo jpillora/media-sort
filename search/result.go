@@ -8,6 +8,8 @@ const (
 	Series MediaType = "series"
 	//Movie represents a movie
 	Movie MediaType = "movie"
+	//Audiobook represents an audiobook
+	Audiobook MediaType = "audiobook"
 )
 
 // Result is a single search result

@@ -54,12 +54,15 @@ var (
 		`{{ if ne .ExtraEpisode -1 }}-{{ printf "%02d" .ExtraEpisode }}{{end}}.{{ .Ext }}`
 	//DefaultMovieTemplate defines the default movie path format
 	DefaultMovieTemplate = "{{ .Name }} ({{ .Year }}).{{ .Ext }}"
+	//DefaultAudiobookTemplate defines the default audiobook path format
+	DefaultAudiobookTemplate = `{{ .Author }}/{{ if .Series }}{{ .Series }} - {{ printf "%02d" .SeriesPart }} - {{end}}{{ .Name }}{{ if .Narrator }} (Narrated by {{ .Narrator }}){{end}}.{{ .Ext }}`
 )
 
 //PathConfig customises the path templates
 type PathConfig struct {
-	TVTemplate    string `help:"tv series path template"`
-	MovieTemplate string `help:"movie path template"`
+	TVTemplate        string `help:"tv series path template"`
+	MovieTemplate     string `help:"movie path template"`
+	AudiobookTemplate string `help:"audiobook path template"`
 }
 
 var prettyPathFuncs = template.FuncMap{}
@@ -81,6 +84,8 @@ func (result *Result) PrettyPath(config PathConfig) (string, error) {
 		tmpl = config.TVTemplate
 	case mediasearch.Movie:
 		tmpl = config.MovieTemplate
+	case mediasearch.Audiobook:
+		tmpl = config.AudiobookTemplate
 	default:
 		return "", fmt.Errorf("Invalid result type: %s", result.MType)
 	}
