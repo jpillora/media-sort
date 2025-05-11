@@ -4,21 +4,21 @@ This document outlines the steps required to add audiobook sorting functionality
 
 ## 1. Define Audiobook Media Type
 -   **File:** `search/result.go`
-    -   [ ] Add `Audiobook MediaType = "audiobook"` to the `MediaType` constants.
+    -   [x] Add `Audiobook MediaType = "audiobook"` to the `MediaType` constants.
 -   **Throughout codebase:**
-    -   [ ] Review and update all logic that switches or checks `MediaType` (e.g., in `search/search.go`, `search/get_imdb.go`, `sort/path_sort.go`) to correctly handle the new `Audiobook` type.
+    -   [x] Review and update all logic that switches or checks `MediaType` (e.g., in `search/search.go`, `search/get_imdb.go`, `sort/path_sort.go`) to correctly handle the new `Audiobook` type.
 
 ## 2. Configuration Updates
 -   **File:** `sort/fs_sort.go` (Config struct)
-    -   [ ] Add `AudiobookDir string \`opts:"help=audiobook base directory (defaults to current directory)"\`` field for specifying the output directory for audiobooks.
+    -   [x] Add `AudiobookDir string \`opts:"help=audiobook base directory (defaults to current directory)"\`` field for specifying the output directory for audiobooks.
 -   **File:** `sort/path_sort.go` (PathConfig struct and defaults)
-    -   [ ] Add `AudiobookTemplate string \`help:"audiobook path template"\`` to `PathConfig`.
-    -   [ ] Define `DefaultAudiobookTemplate`. A possible example:
+    -   [x] Add `AudiobookTemplate string \`help:"audiobook path template"\`` to `PathConfig`.
+    -   [x] Define `DefaultAudiobookTemplate`. A possible example:
         `{{ .Author }}/{{ if .Series }}{{ .Series }} - {{ printf "%02d" .SeriesPart }} - {{end}}{{ .Title }}{{ if .Narrator }} (Narrated by {{ .Narrator }}){{end}}.{{ .Ext }}`
         (Consider which fields like Author, Series, SeriesPart, Narrator will be available in the `Result` struct).
 -   **File:** `main.go`
-    -   [ ] Add new command-line flags `--audiobook-dir` and `--audiobook-template` linked to the new `Config` fields.
-    -   [ ] Update the `info` and `pathTemplates` help messages to include audiobooks.
+    -   [x] Add new command-line flags `--audiobook-dir` and `--audiobook-template` linked to the new `Config` fields.
+    -   [x] Update the `info` and `pathTemplates` help messages to include audiobooks.
 
 ## 3. Search Functionality
 -   **Research:**
