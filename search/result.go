@@ -1,6 +1,6 @@
 package mediasearch
 
-//MediaType can be Movie or Series
+// MediaType can be Movie or Series
 type MediaType string
 
 const (

@@ -12,21 +12,21 @@ import (
 	mediasearch "github.com/jpillora/media-sort/search"
 )
 
-//Sort the given path, creates a search query,
-//performing the search and returning a Result
+// Sort the given path, creates a search query,
+// performing the search and returning a Result
 func Sort(path string) (*Result, error) {
 	return SortThreshold(path, 95)
 }
 
-//SortThreshold sorts the given path, creates a search query,
-//performing the search with the given threshold and returning a Result
+// SortThreshold sorts the given path, creates a search query,
+// performing the search with the given threshold and returning a Result
 func SortThreshold(path string, threshold int) (*Result, error) {
 	return SortDepthThreshold(path, 0, threshold)
 }
 
-//SortDepthThreshold sorts the given path, includes <depth>
-//parent directories, creates a search query,
-//performing the search with the given threshold and returning a Result
+// SortDepthThreshold sorts the given path, includes <depth>
+// parent directories, creates a search query,
+// performing the search with the given threshold and returning a Result
 func SortDepthThreshold(path string, depth, threshold int) (*Result, error) {
 	r, err := runPathSort(path, threshold, depth)
 	if err != nil {
@@ -35,8 +35,8 @@ func SortDepthThreshold(path string, depth, threshold int) (*Result, error) {
 	return &r, nil
 }
 
-//Result holds both the results from parsing path, and the from
-//performing the search
+// Result holds both the results from parsing path, and the from
+// performing the search
 type Result struct {
 	Query                         string
 	Name, Path                    string
@@ -58,7 +58,7 @@ var (
 	DefaultAudiobookTemplate = `{{ .Author }}/{{ if .Series }}{{ .Series }} - {{ printf "%02d" .SeriesPart }} - {{end}}{{ .Name }}{{ if .Narrator }} (Narrated by {{ .Narrator }}){{end}}.{{ .Ext }}`
 )
 
-//PathConfig customises the path templates
+// PathConfig customises the path templates
 type PathConfig struct {
 	TVTemplate        string `help:"tv series path template"`
 	MovieTemplate     string `help:"movie path template"`
@@ -67,8 +67,8 @@ type PathConfig struct {
 
 var prettyPathFuncs = template.FuncMap{}
 
-//PrettyPath converts the provided "messy" path into a
-//"pretty" cleanly formatted path using the media result
+// PrettyPath converts the provided "messy" path into a
+// "pretty" cleanly formatted path using the media result
 func (result *Result) PrettyPath(config PathConfig) (string, error) {
 	//config
 	if config.TVTemplate == "" {

@@ -18,7 +18,7 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
-//Config is a sorter configuration
+// Config is a sorter configuration
 type Config struct {
 	Targets           []string `opts:"mode=arg,min=1"`
 	TVDir             string   `opts:"help=tv series base directory (defaults to current directory)"`
@@ -44,7 +44,7 @@ type Config struct {
 	Verbose           bool          `opts:"help=verbose logs"`
 }
 
-//fsSort is a media sorter
+// fsSort is a media sorter
 type fsSort struct {
 	Config
 	validExts map[string]bool
@@ -83,9 +83,9 @@ const (
 	symLink  linkType = "symLink"
 )
 
-//FileSystemSort performs a media sort
-//against the file system using the provided
-//configuration
+// FileSystemSort performs a media sort
+// against the file system using the provided
+// configuration
 func FileSystemSort(c Config) error {
 	if c.MovieDir == "" {
 		c.MovieDir = "."
