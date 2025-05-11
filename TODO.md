@@ -49,11 +49,11 @@ This document outlines the steps required to add audiobook sorting functionality
 
 ## 5. Sorting Logic
 -   **File:** `sort/fs_sort.go` (primarily `FileSystemSort` and related functions)
-    -   [ ] Modify the main sorting logic to handle the `Audiobook` `MType`.
-    -   [ ] When a result is an audiobook, use `c.AudiobookDir` (or current dir if not set) as the base output directory.
-    -   [ ] Use `c.AudiobookTemplate` (or `DefaultAudiobookTemplate`) for formatting the final path.
+    -   [x] Modify the main sorting logic to handle the `Audiobook` `MType`.
+    -   [x] When a result is an audiobook, use `c.AudiobookDir` (or current dir if not set) as the base output directory.
+    -   [x] Use `c.AudiobookTemplate` (or `DefaultAudiobookTemplate`) for formatting the final path.
 -   **File:** `sort/path_sort.go` (`PrettyPath` function)
-    -   [ ] Ensure `PrettyPath` can correctly apply the `AudiobookTemplate` using the audiobook-specific fields in the `Result` struct.
+    -   [x] Ensure `PrettyPath` can correctly apply the `AudiobookTemplate` using the audiobook-specific fields in the `Result` struct.
 
 ## 6. Testing
 -   **File:** `sort/path_sort_test.go`

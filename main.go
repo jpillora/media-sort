@@ -37,7 +37,7 @@ and you can view all possible template variables here:
 
 func main() {
 	c := mediasort.Config{
-		Extensions:        "mp4,m4v,avi,mkv,mpeg,mpg,mov,webm",
+		Extensions:        "mp4,m4v,avi,mkv,mpeg,mpg,mov,webm,mp3,m4b,aac,flac,aa,aax",
 		Concurrency:       6,
 		FileLimit:         1000,
 		MinFileSize:       sizestr.Bytes(sizestr.MustParse("25MB")),
