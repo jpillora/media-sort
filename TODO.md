@@ -22,13 +22,13 @@ This document outlines the steps required to add audiobook sorting functionality
 
 ## 3. Search Functionality
 -   **Research:**
-    -   [ ] Identify and evaluate potential metadata sources/APIs for audiobooks (e.g., LibriVox, Audible (if API access is feasible), Google Books API, Open Library, etc.).
+    -   [x] Identify and evaluate potential metadata sources/APIs for audiobooks (e.g., LibriVox, Audible (if API access is feasible), Google Books API, Open Library, etc.).
 -   **File(s):** `search/` directory (e.g., `search_googlebooks.go`, `search_librivox.go`)
-    -   [ ] Implement new search functions for one or more chosen audiobook metadata providers. These functions should be similar in signature to `searchTVMaze` or `searchMovieDB` (e.g., `func searchAudiobookSource(query, year string, mediatype MediaType) ([]Result, error)`).
-    -   [ ] Ensure these functions populate the `Result` struct with audiobook-specific data (Author, Narrator, Series info, etc.).
+    -   [x] Implement new search functions for one or more chosen audiobook metadata providers. These functions should be similar in signature to `searchTVMaze` or `searchMovieDB` (e.g., `func searchAudiobookSource(query, year string, mediatype MediaType) ([]Result, error)`).
+    -   [x] Ensure these functions populate the `Result` struct with audiobook-specific data (Author, Narrator, Series info, etc.).
 -   **File:** `search/search.go`
-    -   [ ] Create an `audiobookSearches` slice of type `[]search` and add the new audiobook search functions to it.
-    -   [ ] Modify the `Search` and `SearchThreshold` functions:
+    -   [x] Create an `audiobookSearches` slice of type `[]search` and add the new audiobook search functions to it.
+    -   [x] Modify the `Search` and `SearchThreshold` functions:
         -   When `mediatype` (or `mt`) is `Audiobook`, iterate over `audiobookSearches` instead of `tvSearches` or `movieSearches`.
 
 ## 4. Path Parsing and Information Extraction
