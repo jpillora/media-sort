@@ -74,7 +74,7 @@ This document outlines the steps required to add audiobook sorting functionality
     -   [x] Update the `pathTemplates` constant to show the default audiobook template and relevant variables.
 
 ## 8. Refinements & Edge Cases
--   [ ] Consider how to handle multi-file audiobooks (e.g., one file per chapter). The current model seems to be one output file per input file. This might need significant thought if a "grouping" concept is desired.
--   [ ] How to handle "Various Authors" or "Collections" for audiobooks.
--   [ ] Disambiguation if a title could be a movie, TV show, or audiobook. (The current system might rely on file naming conventions or might need explicit type hints if it becomes an issue).
--   [ ] Update any file extension logic (`c.Extensions`) if audiobooks commonly use extensions not already covered (e.g., `.m4b`, `.aax`). The current default `mp4,m4v,avi,mkv,mpeg,mpg,mov,webm` might miss common audiobook formats like `.mp3`, `.aac`, `.flac`. This should be configurable or have sensible defaults.
+-   [x] Consider how to handle multi-file audiobooks (e.g., one file per chapter). The current model seems to be one output file per input file. This might need significant thought if a "grouping" concept is desired.
+-   [x] How to handle "Various Authors" or "Collections" for audiobooks.
+-   [x] Disambiguation if a title could be a movie, TV show, or audiobook. (The current system might rely on file naming conventions or might need explicit type hints if it becomes an issue).
+-   [x] Update any file extension logic (`c.Extensions`) if audiobooks commonly use extensions not already covered (e.g., `.m4b`, `.aax`). The current default `mp4,m4v,avi,mkv,mpeg,mpg,mov,webm` might miss common audiobook formats like `.mp3`, `.aac`, `.flac`. This should be configurable or have sensible defaults.

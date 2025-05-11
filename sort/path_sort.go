@@ -129,6 +129,21 @@ func runPathParse(path string, depth int) (Result, error) {
 	if depth < 0 || depth > l {
 		depth = l
 	}
+
+	// For audiobooks, check if the parent directory is the author and extract title
+	if ext != "" && (strings.EqualFold(ext, ".m4b") ||
+		strings.EqualFold(ext, ".mp3") ||
+		strings.EqualFold(ext, ".aac") ||
+		strings.EqualFold(ext, ".flac") ||
+		strings.EqualFold(ext, ".aa") ||
+		strings.EqualFold(ext, ".aax")) {
+		result.MType = string(mediasearch.Audiobook)
+		if len(parts) > 0 {
+			result.Author = parts[len(parts)-1] // Last directory is author
+		}
+		result.Query = mediasearch.Normalize(name) // Use just the normalized filename as the query
+	}
+
 	name = strings.Join(append(parts[l-depth:], name), " ")
 	//split name/ext
 	result.Name = name
@@ -136,6 +151,15 @@ func runPathParse(path string, depth int) (Result, error) {
 	//query is normalized name
 	query := mediasearch.Normalize(name)
 	log.Printf("'%s' -> '%s'", name, query)
+
+	if result.MType != string(mediasearch.Audiobook) {
+		result.Query = query // Set query only for non-audiobook types
+	}
+
+	// If it's an audiobook, query should be the normalized title
+	if result.MType == string(mediasearch.Audiobook) {
+		query = mediasearch.Normalize(result.Name)
+	}
 
 	// Try to identify audiobook first
 	if tryAudiobookParse(&result, query) {

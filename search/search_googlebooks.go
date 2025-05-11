@@ -43,11 +43,11 @@ func searchGoogleBooks(query, year string, mediatype MediaType) ([]Result, error
 
 	// Add year if provided
 	if year != "" {
-		searchURL += "&publishedDate=" + url.QueryEscape(year)
+		requestURL += "&publishedDate=" + url.QueryEscape(year)
 	}
 
 	// Make request
-	resp, err := http.Get(searchURL)
+	resp, err := http.Get(requestURL)
 	if err != nil {
 		return nil, err
 	}
