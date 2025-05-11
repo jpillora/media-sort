@@ -33,19 +33,19 @@ This document outlines the steps required to add audiobook sorting functionality
 
 ## 4. Path Parsing and Information Extraction
 -   **File:** `sort/path_sort.go` (Result struct)
-    -   [ ] Add new fields to the `Result` struct to store audiobook-specific metadata. For example:
+    -   [x] Add new fields to the `Result` struct to store audiobook-specific metadata. For example:
         -   `Author string`
         -   `Narrator string`
         -   `BookSeries string` (if it's part of a series)
         -   `SeriesPart int` (e.g., book number in series)
 -   **File(s):** `sort/strings.go` (and potentially `search/strings.go` if normalization needs to be audiobook-aware)
-    -   [ ] Develop and add new regular expressions to parse audiobook-specific details from filenames/paths (e.g., "Author - Series Book 1 - Title", "Title by Author Narrated by Narrator").
-    -   [ ] Consider common audiobook naming conventions and file structures (e.g., often in subfolders by Author/Series).
+    -   [x] Develop and add new regular expressions to parse audiobook-specific details from filenames/paths (e.g., "Author - Series Book 1 - Title", "Title by Author Narrated by Narrator").
+    -   [x] Consider common audiobook naming conventions and file structures (e.g., often in subfolders by Author/Series).
 -   **File:** `sort/path_sort.go` (path parsing logic, likely within `SortDepthThreshold` or a helper function it calls)
-    -   [ ] Update the path parsing logic to attempt to identify files as audiobooks.
-    -   [ ] Extract audiobook-specific information (Author, Title, Series, Part, Narrator) using the new regexes.
-    -   [ ] Set `r.MType = string(mediasearch.Audiobook)` for identified audiobooks.
-    -   [ ] Populate the new audiobook-specific fields in the `Result` struct.
+    -   [x] Update the path parsing logic to attempt to identify files as audiobooks.
+    -   [x] Extract audiobook-specific information (Author, Title, Series, Part, Narrator) using the new regexes.
+    -   [x] Set `r.MType = string(mediasearch.Audiobook)` for identified audiobooks.
+    -   [x] Populate the new audiobook-specific fields in the `Result` struct.
 
 ## 5. Sorting Logic
 -   **File:** `sort/fs_sort.go` (primarily `FileSystemSort` and related functions)

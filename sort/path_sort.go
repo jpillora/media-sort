@@ -46,6 +46,11 @@ type Result struct {
 	EpisodeDate                   string //weekly series
 	Year                          string
 	Accuracy                      int
+	// Audiobook specific fields
+	Author     string
+	Narrator   string
+	Series     string
+	SeriesPart int
 }
 
 var (
@@ -131,6 +136,12 @@ func runPathParse(path string, depth int) (Result, error) {
 	//query is normalized name
 	query := mediasearch.Normalize(name)
 	log.Printf("'%s' -> '%s'", name, query)
+
+	// Try to identify audiobook first
+	if tryAudiobookParse(&result, query) {
+		return result, nil
+	}
+
 	//extract episode date (weekly show)
 	if result.MType == "" {
 		m := epidate.FindStringSubmatch(query)
@@ -206,6 +217,51 @@ func runPathParse(path string, depth int) (Result, error) {
 	result.Query = strings.TrimSpace(query)
 	//ready for search
 	return result, nil
+}
+
+func tryAudiobookParse(result *Result, query string) bool {
+	// Try Author - Title format
+	if m := authorTitle.FindStringSubmatch(query); len(m) > 0 {
+		result.Author = m[1]
+		result.Name = m[2]
+		result.MType = string(mediasearch.Audiobook)
+		return true
+	}
+
+	// Try Title by Author format
+	if m := authorBy.FindStringSubmatch(query); len(m) > 0 {
+		result.Name = m[1]
+		result.Author = m[2]
+		result.MType = string(mediasearch.Audiobook)
+		return true
+	}
+
+	// Look for narrator information
+	if m := narratorParen.FindStringSubmatch(query); len(m) > 0 {
+		result.Narrator = m[1]
+		// Remove narrator info from query for further parsing
+		query = narratorParen.ReplaceAllString(query, "")
+	}
+
+	// Try Series Book format
+	if m := seriesBook.FindStringSubmatch(query); len(m) > 0 {
+		result.SeriesPart, _ = strconv.Atoi(m[1])
+		if m[2] != "" {
+			result.Series = m[2]
+		}
+		result.Name = m[3]
+		result.MType = string(mediasearch.Audiobook)
+		return true
+	}
+
+	// Common audiobook extensions
+	switch strings.ToLower(result.Ext) {
+	case "m4b", "aa", "aax":
+		result.MType = string(mediasearch.Audiobook)
+		return true
+	}
+
+	return false
 }
 
 func runPathSort(path string, threshold, depth int) (Result, error) {

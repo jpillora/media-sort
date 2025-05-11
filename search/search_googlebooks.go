@@ -5,19 +5,17 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
-	"strings"
 )
 
 type googleBooksResponse struct {
 	Items []struct {
 		VolumeInfo struct {
 			Title         string   `json:"title"`
-			Authors      []string `json:"authors"`
+			Authors       []string `json:"authors"`
 			PublishedDate string   `json:"publishedDate"`
-			Description  string   `json:"description"`
-			Categories   []string `json:"categories"`
-			ReadingModes struct {
+			Description   string   `json:"description"`
+			Categories    []string `json:"categories"`
+			ReadingModes  struct {
 				Audio bool `json:"audio"`
 			} `json:"readingModes"`
 			IndustryIdentifiers []struct {
@@ -25,8 +23,8 @@ type googleBooksResponse struct {
 				Identifier string `json:"identifier"`
 			} `json:"industryIdentifiers"`
 			SeriesInfo struct {
-				Title       string `json:"title"`
-				BookNumber  int    `json:"bookNumber"`
+				Title      string `json:"title"`
+				BookNumber int    `json:"bookNumber"`
 			} `json:"seriesInfo"`
 		} `json:"volumeInfo"`
 	} `json:"items"`
@@ -40,7 +38,7 @@ func searchGoogleBooks(query, year string, mediatype MediaType) ([]Result, error
 	// Construct search URL
 	searchURL := fmt.Sprintf("https://www.googleapis.com/books/v1/volumes?q=%s",
 		url.QueryEscape(query+" audiobook"))
-	
+
 	// Add year if provided
 	if year != "" {
 		searchURL += "&publishedDate=" + url.QueryEscape(year)
@@ -63,7 +61,7 @@ func searchGoogleBooks(query, year string, mediatype MediaType) ([]Result, error
 	var results []Result
 	for _, item := range data.Items {
 		info := item.VolumeInfo
-		
+
 		// Skip if not an audiobook
 		if !info.ReadingModes.Audio {
 			continue
@@ -74,7 +72,7 @@ func searchGoogleBooks(query, year string, mediatype MediaType) ([]Result, error
 			Title:    info.Title,
 			Type:     Audiobook,
 			Year:     info.PublishedDate[:4], // Extract year from date
-			Accuracy: calculateAccuracy(query, info.Title),
+			Accuracy: accuracy(query, info.Title),
 		}
 
 		// Add authors
