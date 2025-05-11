@@ -66,12 +66,12 @@ This document outlines the steps required to add audiobook sorting functionality
 
 ## 7. Documentation
 -   **File:** `README.md`
-    -   [ ] Add a section describing the new audiobook sorting feature.
-    -   [ ] Document the new CLI flags (`--audiobook-dir`, `--audiobook-template`).
-    -   [ ] Provide an example of the default audiobook path structure.
+    -   [x] Add a section describing the new audiobook sorting feature.
+    -   [x] Document the new CLI flags (`--audiobook-dir`, `--audiobook-template`).
+    -   [x] Provide an example of the default audiobook path structure.
 -   **File:** `main.go`
-    -   [ ] Update the `info` constant (general description) to mention audiobook support.
-    -   [ ] Update the `pathTemplates` constant to show the default audiobook template and relevant variables.
+    -   [x] Update the `info` constant (general description) to mention audiobook support.
+    -   [x] Update the `pathTemplates` constant to show the default audiobook template and relevant variables.
 
 ## 8. Refinements & Edge Cases
 -   [ ] Consider how to handle multi-file audiobooks (e.g., one file per chapter). The current model seems to be one output file per input file. This might need significant thought if a "grouping" concept is desired.
