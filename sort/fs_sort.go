@@ -93,6 +93,9 @@ func FileSystemSort(c Config) error {
 	if c.TVDir == "" {
 		c.TVDir = "."
 	}
+	if c.AudiobookDir == "" {
+		c.AudiobookDir = "."
+	}
 	if c.Watch && !c.Recursive {
 		return errors.New("Recursive mode is required to watch directories")
 	}
@@ -291,6 +294,8 @@ func (fs *fsSort) sortFile(file *fileSort) error {
 		baseDir = fs.TVDir
 	case mediasearch.Movie:
 		baseDir = fs.MovieDir
+	case mediasearch.Audiobook:
+		baseDir = fs.AudiobookDir
 	default:
 		return fmt.Errorf("Invalid result type: %s", result.MType)
 	}

@@ -94,8 +94,3 @@ func searchGoogleBooks(query, year string, mediatype MediaType) ([]Result, error
 
 	return results, nil
 }
-
-func init() {
-	// Register the GoogleBooks search
-	audiobookSearches = append(audiobookSearches, searchGoogleBooks)
-}
