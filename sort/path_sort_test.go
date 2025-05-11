@@ -93,6 +93,42 @@ func TestPathParse(t *testing.T) {
 				Year:  "2012",
 			},
 		},
+		{
+			"/audiobooks/Stephen King/The Stand.m4b",
+			0,
+			Result{
+				Query:  "the stand",
+				Name:   "The Stand",
+				Author: "Stephen King",
+				Ext:    "m4b",
+				MType:  string(mediasearch.Audiobook),
+			},
+		},
+		{
+			"/downloads/The Way of Kings by Brandon Sanderson (Narrated by Michael Kramer).m4b",
+			0,
+			Result{
+				Query:    "the way of kings",
+				Name:     "The Way of Kings",
+				Author:   "Brandon Sanderson",
+				Narrator: "Michael Kramer",
+				Ext:      "m4b",
+				MType:    string(mediasearch.Audiobook),
+			},
+		},
+		{
+			"/books/Terry Pratchett/Discworld/Book 1 - The Color of Magic.mp3",
+			1,
+			Result{
+				Query:      "discworld book 1 the color of magic",
+				Name:       "The Color of Magic",
+				Author:     "Terry Pratchett",
+				Series:     "Discworld",
+				SeriesPart: 1,
+				Ext:        "mp3",
+				MType:      string(mediasearch.Audiobook),
+			},
+		},
 	} {
 		//support windows
 		path := strings.ReplaceAll(tc.Input, "/", sep)

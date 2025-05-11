@@ -57,12 +57,12 @@ This document outlines the steps required to add audiobook sorting functionality
 
 ## 6. Testing
 -   **File:** `sort/path_sort_test.go`
-    -   [ ] Add comprehensive test cases for parsing various audiobook filenames and directory structures.
+    -   [x] Add comprehensive test cases for parsing various audiobook filenames and directory structures.
         -   Include examples with author, title, series, book number, narrator.
         -   Test different delimiters and orders of information.
-    -   [ ] Add tests to verify the correct application of the `AudiobookTemplate`.
+    -   [x] Add tests to verify the correct application of the `AudiobookTemplate`.
 -   **New Files (Optional):** `search/search_googlebooks_test.go`, etc.
-    -   [ ] If feasible, add unit tests for the new search functions, potentially mocking API responses.
+    -   [x] If feasible, add unit tests for the new search functions, potentially mocking API responses.
 
 ## 7. Documentation
 -   **File:** `README.md`

@@ -7,6 +7,8 @@ import (
 	"net/url"
 )
 
+var searchURL = "https://www.googleapis.com/books/v1/volumes"
+
 type googleBooksResponse struct {
 	Items []struct {
 		VolumeInfo struct {
@@ -36,8 +38,8 @@ func searchGoogleBooks(query, year string, mediatype MediaType) ([]Result, error
 	}
 
 	// Construct search URL
-	searchURL := fmt.Sprintf("https://www.googleapis.com/books/v1/volumes?q=%s",
-		url.QueryEscape(query+" audiobook"))
+	requestURL := fmt.Sprintf("%s?q=%s",
+		searchURL, url.QueryEscape(query+" audiobook"))
 
 	// Add year if provided
 	if year != "" {
